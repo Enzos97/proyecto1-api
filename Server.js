@@ -1,8 +1,9 @@
 const express = require('express');
 const conectarBD = require('./db');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 // Conectar a la base de datos
 conectarBD()
