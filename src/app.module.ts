@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { MailModule } from './mail/mail.module';
+import { DescuentosModule } from './descuentos/descuentos.module';
 
 
 @Module({
@@ -13,6 +14,7 @@ import { MailModule } from './mail/mail.module';
     MongooseModule.forRoot(process.env.DB_URL),
     UserModule,
     MailModule,
+    DescuentosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
