@@ -37,7 +37,7 @@ export class UserController {
     return this.userService.changePassword(newPasswordUserDto);
   }
 
-  @Auth(Role.ADMIN)
+  @Auth()
   @Get()
   findAll() {
     return this.userService.findAll();

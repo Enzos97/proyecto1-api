@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Descuento, DescuentoDocument } from './entities/descuento.model';
+import { Descuento} from './entities/descuento.model';
 import { CreateDescuentoDto } from './dto/create-descuento.dto';
 
 @Injectable()
 export class DescuentosService {
   constructor(
     @InjectModel(Descuento.name)
-    private descuentoModel: Model<DescuentoDocument>,
+    private descuentoModel: Model<Descuento>,
   ) {}
 
   async create(createDescuentoDto: CreateDescuentoDto): Promise<Descuento> {

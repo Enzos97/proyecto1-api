@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { MailModule } from './mail/mail.module';
 import { DescuentosModule } from './descuentos/descuentos.module';
+import { ProductosModule } from './producto/producto.module';
 
 
 @Module({
@@ -15,6 +16,7 @@ import { DescuentosModule } from './descuentos/descuentos.module';
     UserModule,
     MailModule,
     DescuentosModule,
+    ProductosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
