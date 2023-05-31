@@ -4,6 +4,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SendCodeDto } from './dto/send-code.dto';
+import { Auth } from './role-protected/auth.decorator';
+import { Role } from './types/role.type';
 
 @Controller('user')
 export class UserController {
@@ -23,6 +25,7 @@ export class UserController {
   login(@Body() loginUserDto: LoginUserDto) {
     return this.userService.login(loginUserDto);
   }
+  @Auth(Role.ADMIN)
   @Get()
   findAll() {
     return this.userService.findAll();
