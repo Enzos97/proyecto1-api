@@ -6,6 +6,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { SendCodeDto } from './dto/send-code.dto';
 import { Auth } from './role-protected/auth.decorator';
 import { Role } from './types/role.type';
+import { NewPasswordUserDto } from './dto/change-password.dto';
 
 @Controller('user')
 export class UserController {
@@ -25,6 +26,17 @@ export class UserController {
   login(@Body() loginUserDto: LoginUserDto) {
     return this.userService.login(loginUserDto);
   }
+
+  @Post('newCode')
+  sendCode(@Body() sendCode:SendCodeDto){
+    return this.userService.sendNewCode(sendCode)
+  }
+
+  @Patch('changePassword')
+  updatePassword(@Body() newPasswordUserDto:NewPasswordUserDto) {
+    return this.userService.changePassword(newPasswordUserDto);
+  }
+
   @Auth(Role.ADMIN)
   @Get()
   findAll() {
@@ -38,11 +50,12 @@ export class UserController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
+  @Auth(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }

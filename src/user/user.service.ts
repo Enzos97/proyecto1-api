@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,6 +10,8 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserDto } from './dto/login-user.dto';
 import { MailService } from 'src/mail/mail.service';
 import { SendCodeDto } from './dto/send-code.dto';
+import { NewPasswordUserDto } from './dto/change-password.dto';
+
 @Injectable()
 export class UserService {
 
@@ -20,27 +22,33 @@ export class UserService {
     private readonly mailService:MailService,
   ){}
   async sendCodeAndCreate(sendCodeDto:SendCodeDto){
-    console.log(sendCodeDto.email)
-    console.log(typeof sendCodeDto.email)
-    const code = Math.floor(Math.random() * (999999 - 100000 + 1) + 100000);
-    const newUser = await this.userModel.create({email:sendCodeDto.email,code})
-    await this.mailService.send_code_mail(sendCodeDto.email,code)
-    return newUser
+    try{
+      const email = this.decodeBase64(sendCodeDto.email)
+      const code = Math.floor(Math.random() * (999999 - 100000 + 1) + 100000);
+      const newUser = await this.userModel.create({email:email,code})
+      await this.mailService.send_code_mail(email,code)
+      return newUser
+    }catch(error){
+      this.handleDBErrors(error);
+    }
   }
 
   async create(createUserDto: CreateUserDto) {
-    
       try {
-  
-        let user = await this.userModel.findOne({ email:createUserDto.email });
+        const email = this.decodeBase64(createUserDto.email)
+        const password = this.decodeBase64(createUserDto.password)
+        let user = await this.userModel.findOne({ email:email });
+
+        if (!user){
+          throw new BadRequestException('The email introduced is incorrect.');
+        }
         if(user.code==createUserDto.code){
-          createUserDto.password = hashSync( createUserDto.password, 10 )
-          createUserDto.code= null
-          let updatedUser = await this.userModel.findByIdAndUpdate(user.id, createUserDto, { new: true });
-          return { updatedUser, token: this.setJwtToken({ email: user.email }) };
+          user.code= null
+          user.password= hashSync( password, 10 )
+          await user.save()
+          return { user, token: this.setJwtToken({ email: email }) };
         }
         throw new BadRequestException('el codigo ingresado es invalido')
-        // TODO: Retornar el JWT de acceso
   
       } catch (error) {
         this.handleDBErrors(error);
@@ -48,15 +56,16 @@ export class UserService {
   }
 
   async login( loginUserDto: LoginUserDto ) {
-
-    const { password, email } = loginUserDto;
-    console.log(email)
+    const password = this.decodeBase64(loginUserDto.password)
+    const email = this.decodeBase64(loginUserDto.email)
     const user = await this.userModel.findOne({ email });
-    console.log(user)
-    if (!user)
+
+    if (!user){
       throw new BadRequestException('The email introduced is incorrect.');
-    if (!compareSync(password, user.password))
+    }
+    if (!compareSync(password, user.password)){
       throw new BadRequestException('The password introduced is incorrect.');
+    }
 
     return {
       user,
@@ -64,6 +73,34 @@ export class UserService {
     };
   }
 
+  async sendNewCode(email:SendCodeDto){
+    try {
+      const code = Math.floor(Math.random() * (999999 - 100000 + 1) + 100000);
+      const emailDecoded = this.decodeBase64(email.email)
+      const updatedUserCode = await this.userModel.findOneAndUpdate(
+        { email: emailDecoded },
+        { code: code },
+        { new: true }
+      );
+      console.log(updatedUserCode)
+      await this.mailService.send_code_mail(emailDecoded,code)
+      return 'codigo enviado.'
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
+  }
+
+  async changePassword(newPassword:NewPasswordUserDto){
+    const user = await this.userModel.findOne({code:newPassword.code})
+    const password = this.decodeBase64(newPassword.password)
+    if (!user){
+      throw new NotFoundException('codigo ingresado incorrecto.')
+    }
+    user.password = hashSync( password, 10 )
+    user.code = null
+    await user.save()
+    return user
+  }
   async findAll() {
     const users = await this.userModel.find()
     return users
@@ -73,16 +110,29 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true })
+    if (!user){
+      throw new NotFoundException('usuario ingresado no encontrado.')
+    }
+    return user ;
   }
 
-  remove(id: number) {
+  async remove(id: string) {
+    const user = await this.userModel.findByIdAndDelete(id)
+    if (!user){
+      throw new NotFoundException('usuario ingresado no encontrado.')
+    }
     return `This action removes a #${id} user`;
   }
 
   private setJwtToken(payload: JwtPayload) {
     return this.jwtService.sign(payload);
+  }
+
+  private decodeBase64(encodedText: string): string {
+    const decodedText = Buffer.from(encodedText, 'base64').toString('utf-8');
+    return decodedText;
   }
 
   private handleDBErrors( error: any ): never {
