@@ -11,6 +11,8 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { MailService } from 'src/mail/mail.service';
 import { SendCodeDto } from './dto/send-code.dto';
 import { NewPasswordUserDto } from './dto/change-password.dto';
+import { CommonService } from 'src/common/common.service';
+import { loginCode } from './interfaces/login-code.interface';
 
 @Injectable()
 export class UserService {
@@ -20,6 +22,7 @@ export class UserService {
     private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
     private readonly mailService:MailService,
+    private readonly commonService: CommonService,
   ){}
   async sendCodeAndCreate(sendCodeDto:SendCodeDto){
     try{
@@ -29,7 +32,7 @@ export class UserService {
       await this.mailService.send_code_mail(email,code)
       return newUser
     }catch(error){
-      this.handleDBErrors(error);
+      this.commonService.handleExceptions(error)
     }
   }
 
@@ -51,7 +54,7 @@ export class UserService {
         throw new BadRequestException('el codigo ingresado es invalido')
   
       } catch (error) {
-        this.handleDBErrors(error);
+        this.commonService.handleExceptions(error)
       }
   }
 
@@ -66,7 +69,8 @@ export class UserService {
     if (!compareSync(password, user.password)){
       throw new BadRequestException('The password introduced is incorrect.');
     }
-
+    user.code= null
+    await user.save()
     return {
       user,
       token: this.setJwtToken({email:user.email})
@@ -82,11 +86,32 @@ export class UserService {
         { code: code },
         { new: true }
       );
+      if (!updatedUserCode){
+        throw new BadRequestException('The email introduced is incorrect.');
+      }
       console.log(updatedUserCode)
       await this.mailService.send_code_mail(emailDecoded,code)
       return 'codigo enviado.'
     } catch (error) {
-      this.handleDBErrors(error);
+      this.commonService.handleExceptions(error);
+    }
+  }
+
+  async loginWithCode(code:loginCode){
+    console.log(code)
+    try{
+      const user = await this.userModel.findOne({code:code.code})
+      if (!user){
+        throw new NotFoundException('el codigo ingresado es invalido');
+      }
+      user.code= null
+      await user.save()
+      return {
+        user,
+        token: this.setJwtToken({email:user.email})
+      };
+    }catch(error){
+      this.commonService.handleExceptions(error)
     }
   }
 
@@ -101,9 +126,14 @@ export class UserService {
     await user.save()
     return user
   }
+
   async findAll() {
-    const users = await this.userModel.find()
-    return users
+    try{
+      const users = await this.userModel.find()
+      return users
+    }catch(error){
+      this.commonService.handleExceptions(error)
+    }
   }
 
   findOne(id: number) {
@@ -135,15 +165,4 @@ export class UserService {
     return decodedText;
   }
 
-  private handleDBErrors( error: any ): never {
-
-
-    if ( error.code === '23505' ) 
-      throw new BadRequestException( error.detail );
-
-    console.log(error)
-
-    throw new InternalServerErrorException('Please check server logs');
-
-  }
 }

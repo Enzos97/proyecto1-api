@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Talle } from '../interfaces/talles.interface';
 
 @Schema()
 export class Producto {
@@ -9,13 +10,13 @@ export class Producto {
   marca: string;
 
   @Prop({ required: true })
-  modelo: string;
+  descripcion: string;
 
   @Prop({ type: [String], required: true })
   colores: string[];
 
   @Prop({ required: true })
-  talle: string;
+  talle: Talle[];
 
   @Prop({ required: true })
   precio: number;
@@ -31,7 +32,25 @@ export class Producto {
 
   @Prop({ required: true })
   disciplina: string;
+
 }
 
 export const ProductoSchema = SchemaFactory.createForClass(Producto);
+
+ProductoSchema.pre('save', function () {
+  if (this.talle) {
+    this.talle = this.talle.map(talle => ({
+      talle: talle.talle.toUpperCase(),
+      cantidad: talle.cantidad,
+    }));
+  }
+  if(this.colores){
+    this.colores = this.colores.map(color => (
+      color.toUpperCase()
+    ));
+  }
+  if(this.codigo){
+    this.codigo = this.codigo.toUpperCase()
+  }
+});
 

@@ -1,10 +1,12 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNumber, IsString } from "class-validator";
+import { IsArray, IsNumber, IsString, ValidateNested } from "class-validator";
+import { TallesDto } from "./talle-product.dto";
+import { Talle } from "../interfaces/talles.interface";
 
 export class CreateProductoDto {
   @IsString()
   tipo: string;
-  
+
   @IsString()
   marca: string;
 
@@ -16,8 +18,10 @@ export class CreateProductoDto {
   @Type(() => String)
   colores: string[];
 
-  @IsString()
-  talle: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TallesDto)
+  talle: Talle[];
 
   @IsNumber()
   precio: number;

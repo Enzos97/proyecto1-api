@@ -7,6 +7,7 @@ import { SendCodeDto } from './dto/send-code.dto';
 import { Auth } from './role-protected/auth.decorator';
 import { Role } from './types/role.type';
 import { NewPasswordUserDto } from './dto/change-password.dto';
+import { loginCode } from './interfaces/login-code.interface';
 
 @Controller('user')
 export class UserController {
@@ -26,6 +27,12 @@ export class UserController {
   login(@Body() loginUserDto: LoginUserDto) {
     return this.userService.login(loginUserDto);
   }
+
+  @Post('loginWithCode')
+  loginWithCode(@Body() code: loginCode) {
+    return this.userService.loginWithCode(code)
+  }
+
 
   @Post('newCode')
   sendCode(@Body() sendCode:SendCodeDto){
