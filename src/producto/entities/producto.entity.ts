@@ -3,14 +3,15 @@ import { Talle } from '../interfaces/talles.interface';
 
 @Schema()
 export class Producto {
+  @Prop({unique:true ,required: true, index: true, })
+  descripcion: string;
+  
   @Prop({ required: true })
   tipo: string;
 
   @Prop({ required: true })
   marca: string;
 
-  @Prop({ required: true })
-  descripcion: string;
 
   @Prop({ type: [String], required: true })
   colores: string[];

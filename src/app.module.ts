@@ -8,17 +8,21 @@ import { MailModule } from './mail/mail.module';
 import { DescuentosModule } from './descuentos/descuentos.module';
 import { ProductosModule } from './producto/producto.module';
 import { CommonModule } from './common/common.module';
+import { MercadopagoModule } from './mercadopago/mercadopago.module';
+import { DatabaseErrorHandlingModule } from './database-error-handling/database-error-handling.module';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal: true}),
     MongooseModule.forRoot(process.env.DB_URL),
+    MercadopagoModule,
     UserModule,
     MailModule,
     DescuentosModule,
     ProductosModule,
     CommonModule,
+    DatabaseErrorHandlingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

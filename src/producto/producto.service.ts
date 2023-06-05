@@ -6,6 +6,7 @@ import { CreateProductoDto } from './dto/create-producto.dto';
 import { CommonService } from 'src/common/common.service';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { Talle } from './interfaces/talles.interface';
+import { NotFoundException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class ProductosService {
@@ -20,6 +21,8 @@ export class ProductosService {
       const createdProduct = await this.productModel.create(createProductoDto);
       return createdProduct
     }catch(error){
+      console.log('error SP',error)
+      console.log('habndleError',this.commonService.handleExceptions(error))
       this.commonService.handleExceptions(error)
     }
   }
@@ -28,8 +31,17 @@ export class ProductosService {
     return this.productModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Producto> {
-    return this.productModel.findById(id).exec();
+  async findOne(id: string) {
+    try{
+      const producto = await this.productModel.findById(id);
+      if(!producto) {
+        let notFoundError = new NotFoundException('Product not found');
+        this.commonService.handleExceptions(notFoundError.getResponse())
+      }
+      return producto
+    }catch(error){
+      this.commonService.handleExceptions(error)
+    };
   }
 
   async update(id: string, updateProductoDto:UpdateProductoDto): Promise<Producto> {
