@@ -5,14 +5,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { UserModule } from 'src/user/user.module';
+import { CommonModule } from './../common/common.module';
 
 @Global()
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
-    ConfigModule,
-    MailerModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
+  ScheduleModule.forRoot(),
+  ConfigModule,
+  MailerModule.forRootAsync({
+    useFactory: async (config: ConfigService) => ({
         transport: {
           host: config.get('MAIL_HOST'),
           port:465,
@@ -25,6 +26,7 @@ import { UserModule } from 'src/user/user.module';
       }),
       inject: [ConfigService],
     }),
+    CommonModule
   ],
   providers: [MailService],
   exports:[MailService]

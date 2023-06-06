@@ -7,6 +7,7 @@ import { SendCodeDto } from './dto/send-code.dto';
 import { Auth } from './role-protected/auth.decorator';
 import { Role } from './types/role.type';
 import { NewPasswordUserDto } from './dto/change-password.dto';
+import { loginCode } from './interfaces/login-code.interface';
 
 @Controller('user')
 export class UserController {
@@ -27,6 +28,12 @@ export class UserController {
     return this.userService.login(loginUserDto);
   }
 
+  @Post('loginWithCode')
+  loginWithCode(@Body() code: loginCode) {
+    return this.userService.loginWithCode(code)
+  }
+
+
   @Post('newCode')
   sendCode(@Body() sendCode:SendCodeDto){
     return this.userService.sendNewCode(sendCode)
@@ -37,7 +44,7 @@ export class UserController {
     return this.userService.changePassword(newPasswordUserDto);
   }
 
-  @Auth(Role.ADMIN)
+  @Auth()
   @Get()
   findAll() {
     return this.userService.findAll();
