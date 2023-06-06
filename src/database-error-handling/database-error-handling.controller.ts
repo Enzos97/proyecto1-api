@@ -8,8 +8,8 @@ export class DatabaseErrorHandlingController {
   constructor(private readonly databaseErrorHandlingService: DatabaseErrorHandlingService) {}
 
   @Post()
-  create(@Body() createDatabaseErrorHandlingDto: CreateDatabaseErrorHandlingDto) {
-    return this.databaseErrorHandlingService.create(createDatabaseErrorHandlingDto);
+  create(@Body() ErrorHandling: any) {
+    return this.databaseErrorHandlingService.create(ErrorHandling);
   }
 
   @Get()

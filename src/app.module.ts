@@ -10,6 +10,7 @@ import { ProductosModule } from './producto/producto.module';
 import { CommonModule } from './common/common.module';
 import { MercadopagoModule } from './mercadopago/mercadopago.module';
 import { DatabaseErrorHandlingModule } from './database-error-handling/database-error-handling.module';
+import { ImageUploadModule } from './image-upload/image-upload.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { DatabaseErrorHandlingModule } from './database-error-handling/database-
     ProductosModule,
     CommonModule,
     DatabaseErrorHandlingModule,
+    ImageUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -124,7 +124,10 @@ export class UserService {
     user.password = hashSync( password, 10 )
     user.code = null
     await user.save()
-    return user
+    return {
+      user,
+      token: this.setJwtToken({email:user.email})
+    };
   }
 
   async findAll() {
