@@ -6,6 +6,8 @@ import { UpdateProductoDto } from './dto/update-producto.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CommonService } from '../common/common.service';
 import { ImageUploadService } from '../image-upload/image-upload.service';
+import { Auth } from 'src/user/role-protected/auth.decorator';
+import { Role } from 'src/user/types/role.type';
 
 @Controller('productos')
 export class ProductosController {
@@ -19,12 +21,14 @@ export class ProductosController {
   // create(@Body() createProductoDto:CreateProductoDto): Promise<Producto> {
   //   return this.productsService.create(createProductoDto);
   // }
+  @Auth(Role.ADMIN)
   @Post()
   @UseInterceptors(FilesInterceptor('imagenes'))
   async create(
     @Body() createProductoDto: CreateProductoDto,
     @UploadedFiles() imagenes: Array<Express.Multer.File>
   ): Promise<Producto> {
+    console.log('imagenes',imagenes)
     if (imagenes) {
       const imagesUrl = await this.imageUploadService.uploadImages(imagenes);
       createProductoDto.imagenes = imagesUrl;

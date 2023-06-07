@@ -22,8 +22,6 @@ export class ProductosService {
       const createdProduct = await this.productModel.create(createProductoDto);
       return createdProduct
     }catch(error){
-      console.log('error SP',error)
-      console.log('habndleError',this.commonService.handleExceptions(error))
       this.commonService.handleExceptions(error)
     }
   }

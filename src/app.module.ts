@@ -11,6 +11,7 @@ import { CommonModule } from './common/common.module';
 import { MercadopagoModule } from './mercadopago/mercadopago.module';
 import { DatabaseErrorHandlingModule } from './database-error-handling/database-error-handling.module';
 import { ImageUploadModule } from './image-upload/image-upload.module';
+import { CategoriasModule } from './categorias/categorias.module';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
     CommonModule,
     DatabaseErrorHandlingModule,
     ImageUploadModule,
+    CategoriasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

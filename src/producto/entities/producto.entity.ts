@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Talle } from '../interfaces/talles.interface';
+import { Types } from 'mongoose';
 
 @Schema()
 export class Producto {
@@ -37,6 +38,8 @@ export class Producto {
   @Prop({ required: true })
   disciplina: string;
 
+  @Prop({ type: Types.ObjectId, ref: 'Subcategoria' })
+  subcategoria: Types.ObjectId;
 }
 
 export const ProductoSchema = SchemaFactory.createForClass(Producto);
