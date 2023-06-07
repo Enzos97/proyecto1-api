@@ -19,14 +19,26 @@ export class CategoriasService {
     private commonService: CommonService,
   ){}
   async create(createCategoriaDto: CreateCategoriaDto) {
-    const newCategory = await this.categoryModel.create(createCategoriaDto)
+    console.log(createCategoriaDto)
+    const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre})
+    await newCategory.save()
     if(createCategoriaDto.subcategorias){
-      this.categoryModel.findByIdAndUpdate(
-        newCategory.id,
-        { $push: { subcategorias: { $each: createCategoriaDto.subcategorias } } },
-        { new: true }
-      );
+      console.log('if',createCategoriaDto)
+    const subcategoriasCreadas = await Promise.all(createCategoriaDto.subcategorias.map(async (nombre) => {
+      const subcategoria = new this.subcategoryModel({ nombre });
+      return await subcategoria.save();
+    }));
+    const subcategoriasIds = subcategoriasCreadas.map(subcategoria => subcategoria._id);
+    console.log(subcategoriasIds)
+    console.log('newcatid',newCategory.id)
+    const prueba = await this.categoryModel.findByIdAndUpdate(
+      newCategory.id,
+      { $push: { subcategorias: { $each: subcategoriasIds } } },
+      { new: false }
+     );
+     console.log(prueba)
     }
+    await newCategory.save()
 
     return newCategory;
   }
@@ -42,7 +54,7 @@ export class CategoriasService {
     );
   }
   findAll() {
-    return `This action returns all categorias`;
+    return this.categoryModel.find().populate('subcategorias').exec();
   }
 
   findOne(id: number) {

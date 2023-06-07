@@ -3,11 +3,29 @@ import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 import { CreateSubcategoriaDto } from './dto/create-subcategoria.dto';
 import { UpdateSubcategoriaDto } from './dto/update-subcategoria.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Subcategoria } from './entities/subcategoria.entity';
+import { Categoria } from './entities/categoria.entity';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class SubcategoriasService {
-  create(createCategoriaDto: CreateSubcategoriaDto) {
-    return 'This action adds a new categoria';
+  constructor(
+    @InjectModel(Categoria.name) 
+    private categoryModel: Model<Categoria>,
+    @InjectModel(Subcategoria.name) 
+    private subcategoryModel: Model<Subcategoria>,
+  ){}
+  async create(createSubcategoriaDto: CreateSubcategoriaDto) {
+    const newSubcategory = await this.subcategoryModel.create(createSubcategoriaDto)
+    if(createSubcategoriaDto.productos){
+      await this.subcategoryModel.findByIdAndUpdate(
+        newSubcategory.id,
+        { $push: { subcategorias: { $each: createSubcategoriaDto.productos } } },
+        { new: true }
+      );
+    } 
+    return newSubcategory
   }
 
   findAll() {
@@ -18,7 +36,7 @@ export class SubcategoriasService {
     return `This action returns a #${id} categoria`;
   }
 
-  update(id: number, updateCategoriaDto: UpdateSubcategoriaDto) {
+  update(id: number, updateSubcategoriaDto: UpdateSubcategoriaDto) {
     return `This action updates a #${id} categoria`;
   }
 

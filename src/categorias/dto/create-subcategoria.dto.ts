@@ -5,9 +5,10 @@ export class CreateSubcategoriaDto {
     @IsString()
     nombre:string;
     
+    @IsOptional()
     @IsString()
     descripcion: string;
-
+    @IsOptional()
     @IsString()
     categoria: string
 

@@ -2,10 +2,15 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CategoriasService } from './categorias.service';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
+import { SubcategoriasService } from './subcategorias.service';
+import { CreateSubcategoriaDto } from './dto/create-subcategoria.dto';
 
 @Controller('categorias')
 export class CategoriasController {
-  constructor(private readonly categoriasService: CategoriasService) {}
+  constructor(
+    private readonly categoriasService: CategoriasService,
+    private readonly subcategoriasService: SubcategoriasService
+    ) {}
 
   @Post()
   create(@Body() createCategoriaDto: CreateCategoriaDto) {
@@ -14,6 +19,10 @@ export class CategoriasController {
   @Post('addSubcategoria')
   AddSubCategoria(@Body() categoryId: string, subcategoryId: string,) {
     return this.categoriasService.addSubcategory(categoryId,subcategoryId);
+  }
+  @Post('subcategoria')
+  createSubcategoria(@Body() createSubcategoriaDto: CreateSubcategoriaDto) {
+    return this.subcategoriasService.create(createSubcategoriaDto);
   }
   @Get()
   findAll() {

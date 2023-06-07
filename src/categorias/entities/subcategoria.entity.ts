@@ -3,10 +3,10 @@ import { Types } from "mongoose";
 
 @Schema()
 export class Subcategoria {
-    @Prop({ type: String, required: true })
+    @Prop({ type: String, unique:true, required: true })
     nombre:string;
     
-    @Prop({ type: String, required: true })
+    @Prop({ type: String, required: false })
     descripcion: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Categoria' })

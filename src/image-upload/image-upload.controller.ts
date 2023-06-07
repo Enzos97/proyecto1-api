@@ -3,7 +3,7 @@ import { ImageUploadService } from './image-upload.service';
 import { CreateImageUploadDto } from './dto/create-image-upload.dto';
 import { UpdateImageUploadDto } from './dto/update-image-upload.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-
+//image-upload/prueba
 @Controller('image-upload')
 export class ImageUploadController {
   constructor(private readonly imageUploadService: ImageUploadService) {}

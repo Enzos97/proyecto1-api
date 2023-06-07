@@ -4,6 +4,7 @@ import { UpdateImageUploadDto } from './dto/update-image-upload.dto';
 import cloudinary from './config/coudinary.config';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 @Injectable()
 export class ImageUploadService {
   constructor(){
@@ -16,12 +17,15 @@ export class ImageUploadService {
     // Sube cada archivo a Cloudinary
     for (const file of files) {
       console.log(file)
-      const tempFolderPath = 'C:\\Users\\enz_9\\Desktop\\IEM DATA\\proyecto1-api\\dist\\temp';
+      //const tempFolderPath = 'C:\\Users\\enz_9\\Desktop\\IEM DATA\\proyecto1-api\\dist\\temp';
       // Crea la carpeta temp si no existe
+      const tempFolderPath = path.join(os.tmpdir(), 'temp');
+      console.log(tempFolderPath)
       if (!fs.existsSync(tempFolderPath)) {
+        console.log('hola')
         fs.mkdirSync(tempFolderPath);
       }
-      const tempFilePath = path.join(__dirname, '..', 'temp', file.originalname); // Ruta temporal para guardar el archivo
+      const tempFilePath = path.join(tempFolderPath, file.originalname); // Ruta temporal para guardar el archivo
       fs.writeFileSync(tempFilePath, file.buffer); // Guarda el archivo en el sistema de archivos local
 
       // Parámetros de transformación

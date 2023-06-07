@@ -21,7 +21,7 @@ export class ProductosController {
   // create(@Body() createProductoDto:CreateProductoDto): Promise<Producto> {
   //   return this.productsService.create(createProductoDto);
   // }
-  @Auth(Role.ADMIN)
+  //@Auth(Role.ADMIN)
   @Post()
   @UseInterceptors(FilesInterceptor('imagenes'))
   async create(
