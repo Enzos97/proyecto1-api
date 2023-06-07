@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateImageUploadDto } from './dto/create-image-upload.dto';
 import { UpdateImageUploadDto } from './dto/update-image-upload.dto';
 import cloudinary from './config/coudinary.config';
-
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class ImageUploadService {
   constructor(){
@@ -14,10 +15,27 @@ export class ImageUploadService {
 
     // Sube cada archivo a Cloudinary
     for (const file of files) {
-      const result = await cloudinary.uploader.upload(file.path); // Sube el archivo a Cloudinary
-      imageUrls.push(result.secure_url); // Agrega la URL de la imagen al arreglo de URLs
-    }
+      console.log(file)
+      const tempFolderPath = 'C:\\Users\\enz_9\\Desktop\\IEM DATA\\proyecto1-api\\dist\\temp';
+      // Crea la carpeta temp si no existe
+      if (!fs.existsSync(tempFolderPath)) {
+        fs.mkdirSync(tempFolderPath);
+      }
+      const tempFilePath = path.join(__dirname, '..', 'temp', file.originalname); // Ruta temporal para guardar el archivo
+      fs.writeFileSync(tempFilePath, file.buffer); // Guarda el archivo en el sistema de archivos local
 
+      // Parámetros de transformación
+      const transformOptions = {
+        width: 800, // Ancho deseado en píxeles
+        height: 600, // Alto deseado en píxeles
+        crop: "fill" // Opción de recorte para ajustar la imagen al tamaño especificado sin distorsión
+      };
+
+      const result = await cloudinary.uploader.upload(tempFilePath, {
+        public_id: `uploaded_image_${Date.now()}`, transformation: transformOptions})
+      imageUrls.push(result.secure_url);
+      fs.unlinkSync(tempFilePath); 
+    }
     return imageUrls;
   }
   create(createImageUploadDto: CreateImageUploadDto) {

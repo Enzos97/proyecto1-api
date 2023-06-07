@@ -18,6 +18,7 @@ export class ProductosService {
 
   async create(createProductoDto:CreateProductoDto): Promise<Producto> {
     try{
+      console.log('productDto',createProductoDto)
       const createdProduct = await this.productModel.create(createProductoDto);
       return createdProduct
     }catch(error){

@@ -12,7 +12,8 @@ export class CreateProductoDto {
 
   @IsString()
   modelo: string;
-
+  @IsString()
+  descripcion:string;
   @IsArray()
   @IsString({ each: true })
   @Type(() => String)
@@ -22,6 +23,11 @@ export class CreateProductoDto {
   @ValidateNested({ each: true })
   @Type(() => TallesDto)
   talle: Talle[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @Type(() => String)
+  imagenes: string[];
 
   @IsNumber()
   precio: number;

@@ -12,13 +12,16 @@ export class Producto {
   @Prop({ required: true })
   marca: string;
 
+  @Prop({ required: true })
+  modelo:string
 
   @Prop({ type: [String], required: true })
   colores: string[];
 
   @Prop({ required: true })
   talle: Talle[];
-
+  @Prop({ type: [String], required: false })
+  imagenes: string[]
   @Prop({ required: true })
   precio: number;
 
