@@ -18,6 +18,13 @@ export class SubcategoriasService {
   ){}
   async create(createSubcategoriaDto: CreateSubcategoriaDto) {
     const newSubcategory = await this.subcategoryModel.create(createSubcategoriaDto)
+    if(createSubcategoriaDto.categoria){
+      await this.categoryModel.findByIdAndUpdate(
+        createSubcategoriaDto.categoria,
+        { $push: { subcategorias: newSubcategory.id } },
+        { new: true }
+       );
+    }
     if(createSubcategoriaDto.productos){
       await this.subcategoryModel.findByIdAndUpdate(
         newSubcategory.id,

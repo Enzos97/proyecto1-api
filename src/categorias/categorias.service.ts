@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 import { SubcategoriasService } from './subcategorias.service';
@@ -7,7 +7,10 @@ import { CommonService } from 'src/common/common.service';
 import { Categoria } from './entities/categoria.entity';
 import { Model } from 'mongoose';
 import { Subcategoria } from './entities/subcategoria.entity';
-
+import { AddSubcategoriaDto } from './dto/addSubcategoria.dto';
+import { CreateSubcategoriaDto } from './dto/create-subcategoria.dto';
+import { Types } from 'mongoose';
+import { ObjectId } from 'bson';
 @Injectable()
 export class CategoriasService {
   constructor(
@@ -25,7 +28,7 @@ export class CategoriasService {
     if(createCategoriaDto.subcategorias){
       console.log('if',createCategoriaDto)
     const subcategoriasCreadas = await Promise.all(createCategoriaDto.subcategorias.map(async (nombre) => {
-      const subcategoria = new this.subcategoryModel({ nombre });
+      const subcategoria = new this.subcategoryModel({ nombre, categoria: newCategory._id });
       return await subcategoria.save();
     }));
     const subcategoriasIds = subcategoriasCreadas.map(subcategoria => subcategoria._id);
@@ -43,29 +46,108 @@ export class CategoriasService {
     return newCategory;
   }
 
-  async addSubcategory(
-    categoryId: string,
-    subcategoryId: string,
-  ): Promise<Categoria> {
-    return this.categoryModel.findByIdAndUpdate(
-      categoryId,
-      { $push: { subcategorias: subcategoryId } },
-      { new: true },
-    );
-  }
-  findAll() {
-    return this.categoryModel.find().populate('subcategorias').exec();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} categoria`;
+  async addSubcategory(addSubcategoriaDto: AddSubcategoriaDto) {
+    try {
+      this.isInSubcategorias(addSubcategoriaDto)
+      const addSubCat = await this.categoryModel.findByIdAndUpdate(
+        addSubcategoriaDto.categoriaId,
+        { $push: { subcategorias: addSubcategoriaDto.subcategoriaId } },
+        { new: true },
+      );
+      return addSubCat
+    } catch (error) {
+      this.commonService.handleExceptions(error)
+    }
   }
 
-  update(id: number, updateCategoriaDto: UpdateCategoriaDto) {
-    return `This action updates a #${id} categoria`;
+  async removeSubcategory(removeSubcategoriadto:AddSubcategoriaDto){
+    try {
+      const removeSubcategory = await this.categoryModel.findByIdAndUpdate(
+        removeSubcategoriadto.categoriaId,
+        { $pull: { subcategorias: removeSubcategoriadto.subcategoriaId } },
+        { new: true },
+      );
+      return removeSubcategory
+    } catch (error) {
+      throw new this.commonService.handleExceptions(error)
+    }
+  }
+  async findAll() {
+    try {
+      return await this.categoryModel.find().populate('subcategorias').exec();
+    } catch (error) {
+      this.commonService.handleExceptions(error)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} categoria`;
+  // async findOne(id: string) {
+  //   try {
+  //     const categoria = await this.categoryModel.findById(id).populate('subcategorias').exec();
+  //     if(!categoria){
+  //       this.commonService.handleExceptions(new NotFoundException(`no existe categoria con id: ${id}`))
+  //     }
+  //     return categoria
+  //   } catch (error) {
+  //     this.commonService.handleExceptions(error)
+  //   }
+  // }
+  
+
+  async findOne(idONombre: string) {
+    try {
+      let query = this.categoryModel.findOne();
+  
+      if (Types.ObjectId.isValid(idONombre)) {
+        // Buscar por ID
+        query.where('_id').equals(idONombre);
+      } else {
+        // Buscar por nombre (case sensitive)
+        // const regex = new RegExp(`^${idONombre}$`, 'i');
+        // query.where('nombre', regex);
+        const categoriaInDb = await this.categoryModel.find( {"nombre":
+        { $regex: new RegExp("^" + idONombre.toLowerCase(), "i") } })
+        if(!categoriaInDb.length){
+          throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
+        }
+        return categoriaInDb[0]
+      }
+  
+      query.populate('subcategorias');
+  
+      const categoria = await query.exec();
+      if (!categoria) {
+        throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
+      }
+  
+      return categoria;
+    } catch (error) {
+      this.commonService.handleExceptions(error);
+    }
+  }
+  async update(id: string, updateCategoriaDto: UpdateCategoriaDto) {
+    try {
+      return await this.categoryModel.findByIdAndUpdate(id, updateCategoriaDto, {
+        new: true,
+      });
+    } catch (error) {
+      this.commonService.handleExceptions(error)
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      return await this.categoryModel.findByIdAndRemove(id);
+    } catch (error) {
+      this.commonService.handleExceptions(error)
+    }
+  }
+
+  //helper
+  async isInSubcategorias(addSubcategoriaDto: AddSubcategoriaDto){
+    const findCategoria = await this.findOne(addSubcategoriaDto.categoriaId)
+    const subEnCat = findCategoria.subcategorias.find(f=>f.id.toString()==addSubcategoriaDto.subcategoriaId)
+    if(subEnCat){
+      this.commonService.handleExceptions(new BadRequestException('ya has añadido esta subcategoria.'))
+    }
   }
 }

@@ -21,21 +21,28 @@ export class ProductosController {
   // create(@Body() createProductoDto:CreateProductoDto): Promise<Producto> {
   //   return this.productsService.create(createProductoDto);
   // }
-  //@Auth(Role.ADMIN)
+  @Auth(Role.ADMIN)
   @Post()
-  @UseInterceptors(FilesInterceptor('imagenes'))
+  @UseInterceptors(FilesInterceptor('files'))
   async create(
-    @Body() createProductoDto: CreateProductoDto,
-    @UploadedFiles() imagenes: Array<Express.Multer.File>
+    @Body() createProductoDto: any,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Producto> {
-    console.log('imagenes',imagenes)
-    if (imagenes) {
-      const imagesUrl = await this.imageUploadService.uploadImages(imagenes);
-      createProductoDto.imagenes = imagesUrl;
+    console.log('files', files);
+    const parsedProductDto: CreateProductoDto = JSON.parse(
+      createProductoDto.data,
+    );
+    if (files) {
+      const imagesUrl = await this.imageUploadService.uploadImages(files);
+      parsedProductDto.imagenes = imagesUrl;
     }
 
     try {
-      const createdProduct = await this.productsService.create(createProductoDto);
+      console.log('parsedproduct', parsedProductDto);
+
+      const createdProduct = await this.productsService.create(
+        parsedProductDto,
+      );
       return createdProduct;
     } catch (error) {
       this.commonService.handleExceptions(error);
