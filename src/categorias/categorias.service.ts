@@ -23,7 +23,7 @@ export class CategoriasService {
   ){}
   async create(createCategoriaDto: CreateCategoriaDto) {
     console.log(createCategoriaDto)
-    const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre})
+    const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre,imagen:createCategoriaDto.imagen})
     await newCategory.save()
     if(createCategoriaDto.subcategorias){
       console.log('if',createCategoriaDto)
@@ -51,9 +51,10 @@ export class CategoriasService {
       this.isInSubcategorias(addSubcategoriaDto)
       const addSubCat = await this.categoryModel.findByIdAndUpdate(
         addSubcategoriaDto.categoriaId,
-        { $push: { subcategorias: addSubcategoriaDto.subcategoriaId } },
+        { $push: { subcategorias: addSubcategoriaDto.subcategoriaId} },
         { new: true },
       );
+      await this.subcategoryModel.findByIdAndUpdate(addSubcategoriaDto.subcategoriaId,{categoria:addSubcategoriaDto.categoriaId})
       return addSubCat
     } catch (error) {
       this.commonService.handleExceptions(error)
@@ -147,7 +148,9 @@ export class CategoriasService {
     const findCategoria = await this.findOne(addSubcategoriaDto.categoriaId)
     const subEnCat = findCategoria.subcategorias.find(f=>f.id.toString()==addSubcategoriaDto.subcategoriaId)
     if(subEnCat){
-      this.commonService.handleExceptions(new BadRequestException('ya has añadido esta subcategoria.'))
+      const error=  new BadRequestException('ya has añadido esta subcategoria.')
+      console.log('error',error.getResponse(),error.getStatus(),error.message)
+      this.commonService.handleExceptions(error.message)
     }
   }
 }

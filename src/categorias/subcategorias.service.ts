@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Subcategoria } from './entities/subcategoria.entity';
 import { Categoria } from './entities/categoria.entity';
 import { Model } from 'mongoose';
+import { AddProductDto } from './dto/addProduct.dto';
+import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class SubcategoriasService {
@@ -15,6 +17,7 @@ export class SubcategoriasService {
     private categoryModel: Model<Categoria>,
     @InjectModel(Subcategoria.name) 
     private subcategoryModel: Model<Subcategoria>,
+    private commonService: CommonService,
   ){}
   async create(createSubcategoriaDto: CreateSubcategoriaDto) {
     const newSubcategory = await this.subcategoryModel.create(createSubcategoriaDto)
@@ -35,8 +38,12 @@ export class SubcategoriasService {
     return newSubcategory
   }
 
-  findAll() {
-    return `This action returns all categorias`;
+  async findAll() {
+    try {
+      return await this.subcategoryModel.find().populate('productos').exec();
+    } catch (error) {
+      this.commonService.handleExceptions(error)
+    }
   }
 
   findOne(id: number) {
@@ -49,5 +56,20 @@ export class SubcategoriasService {
 
   remove(id: number) {
     return `This action removes a #${id} categoria`;
+  }
+  async addProduct(addProductDto:AddProductDto){
+    return this.subcategoryModel.findByIdAndUpdate(
+      addProductDto.subcategoriaId,
+      { $push: { productos: addProductDto.productoId } },
+      { new: true },
+    );
+  }
+
+  async removeProduct(addProductDto:AddProductDto){
+    return this.subcategoryModel.findByIdAndUpdate(
+      addProductDto.subcategoriaId,
+      { $pull: { productos: addProductDto.productoId } },
+      { new: true },
+    );
   }
 }

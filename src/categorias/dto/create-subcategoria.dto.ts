@@ -12,6 +12,13 @@ export class CreateSubcategoriaDto {
     @IsString()
     categoria: string
 
+        
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    @Type(() => String)
+    imagen: string[];
+    
     @IsOptional()
     @IsArray()
     @IsMongoId({each:true})
