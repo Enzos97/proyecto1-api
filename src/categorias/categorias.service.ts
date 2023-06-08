@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 import { SubcategoriasService } from './subcategorias.service';
@@ -48,7 +48,7 @@ export class CategoriasService {
 
   async addSubcategory(addSubcategoriaDto: AddSubcategoriaDto) {
     try {
-      this.isInSubcategorias(addSubcategoriaDto)
+      await this.isInSubcategorias(addSubcategoriaDto)
       const addSubCat = await this.categoryModel.findByIdAndUpdate(
         addSubcategoriaDto.categoriaId,
         { $push: { subcategorias: addSubcategoriaDto.subcategoriaId} },
@@ -144,13 +144,31 @@ export class CategoriasService {
   }
 
   //helper
-  async isInSubcategorias(addSubcategoriaDto: AddSubcategoriaDto){
-    const findCategoria = await this.findOne(addSubcategoriaDto.categoriaId)
-    const subEnCat = findCategoria.subcategorias.find(f=>f.id.toString()==addSubcategoriaDto.subcategoriaId)
-    if(subEnCat){
-      const error=  new BadRequestException('ya has añadido esta subcategoria.')
-      console.log('error',error.getResponse(),error.getStatus(),error.message)
-      this.commonService.handleExceptions(error.message)
+  // async isInSubcategorias(addSubcategoriaDto: AddSubcategoriaDto){
+  //   const findCategoria = await this.findOne(addSubcategoriaDto.categoriaId)
+  //   const subEnCat = findCategoria.subcategorias.find(f=>f.id.toString()==addSubcategoriaDto.subcategoriaId)
+  //   if(subEnCat){
+  //     throw new BadRequestException('ya has añadido esta subcategoria.')
+  //   }
+  //   return false
+  // }
+  async isInSubcategorias(addSubcategoriaDto: AddSubcategoriaDto): Promise<boolean> {
+    const categoria = await this.categoryModel.findById(addSubcategoriaDto.categoriaId).exec();
+  
+    if (!categoria) {
+      let error =  new NotFoundException(`No se encontró la categoría con ID: ${addSubcategoriaDto.categoriaId}`);
+      this.commonService.handleExceptions(error)
     }
+  
+    const subcategoriaExists = categoria.subcategorias.some(subcategoriaId =>
+      subcategoriaId.equals(addSubcategoriaDto.subcategoriaId)
+    );
+  
+    if (subcategoriaExists) {
+      let error = new BadRequestException('Ya has añadido esta subcategoría a la categoría');
+      this.commonService.handleExceptions(error)
+    }
+  
+    return false;
   }
 }
