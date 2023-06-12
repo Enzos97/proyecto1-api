@@ -7,19 +7,39 @@ import { CommonService } from 'src/common/common.service';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { Talle } from './interfaces/talles.interface';
 import { NotFoundException } from '@nestjs/common/exceptions';
+import { CategoriasService } from 'src/categorias/categorias.service';
+import { SubcategoriasService } from 'src/categorias/subcategorias.service';
 
 @Injectable()
 export class ProductosService {
   constructor(
     @InjectModel(Producto.name) 
     private productModel: Model<Producto>,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private categoriasService:CategoriasService,
+    private subcategoriaService:SubcategoriasService
     ) {}
 
   async create(createProductoDto:CreateProductoDto): Promise<Producto> {
     try{
       console.log('productDto',createProductoDto)
       const createdProduct = await this.productModel.create(createProductoDto);
+
+      const category:any = await this.categoriasService.findOne(createProductoDto.tipo);
+      console.log('category',category)
+      if(!category){
+        throw new NotFoundException('la categoria no existe')
+      }
+      const productoPushCategory = await this.categoriasService.addProduct({subcategoriaId:category._id,productoId:createdProduct.id})
+      console.log('pushCat',productoPushCategory)
+
+      const subcategory:any = await this.subcategoriaService.findOne(createProductoDto.tipo);
+      console.log('subcategory',subcategory)
+      if(!subcategory){
+        throw new NotFoundException('la subcategoria no existe')
+      }
+      const productoPushSubCategory = await this.subcategoriaService.addProduct({subcategoriaId:subcategory._id,productoId:subcategory.id})
+      console.log('pushSubCat',productoPushSubCategory)
       return createdProduct
     }catch(error){
       this.commonService.handleExceptions(error)

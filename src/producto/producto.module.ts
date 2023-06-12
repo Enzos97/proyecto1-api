@@ -5,12 +5,14 @@ import { ProductosService } from './producto.service';
 import { Producto, ProductoSchema } from './entities/producto.entity';
 import { CommonModule } from 'src/common/common.module';
 import { ImageUploadModule } from 'src/image-upload/image-upload.module';
+import { CategoriasModule } from 'src/categorias/categorias.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Producto.name, schema: ProductoSchema }]),
     CommonModule,
-    ImageUploadModule
+    ImageUploadModule,
+    CategoriasModule,
   ],
   controllers: [ProductosController],
   providers: [ProductosService]

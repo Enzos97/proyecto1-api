@@ -11,6 +11,7 @@ import { AddSubcategoriaDto } from './dto/addSubcategoria.dto';
 import { CreateSubcategoriaDto } from './dto/create-subcategoria.dto';
 import { Types } from 'mongoose';
 import { ObjectId } from 'bson';
+import { AddProductDto } from './dto/addProduct.dto';
 @Injectable()
 export class CategoriasService {
   constructor(
@@ -59,6 +60,21 @@ export class CategoriasService {
     } catch (error) {
       this.commonService.handleExceptions(error)
     }
+  }
+  async addProduct(addProductDto:AddProductDto){
+    return this.categoryModel.findByIdAndUpdate(
+      addProductDto.subcategoriaId,
+      { $push: { productos: addProductDto.productoId } },
+      { new: true },
+    );
+  }
+
+  async removeProduct(addProductDto:AddProductDto){
+    return this.categoryModel.findByIdAndUpdate(
+      addProductDto.subcategoriaId,
+      { $pull: { productos: addProductDto.productoId } },
+      { new: true },
+    );
   }
 
   async removeSubcategory(removeSubcategoriadto:AddSubcategoriaDto){

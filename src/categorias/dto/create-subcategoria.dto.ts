@@ -8,6 +8,7 @@ export class CreateSubcategoriaDto {
     @IsOptional()
     @IsString()
     descripcion: string;
+    
     @IsOptional()
     @IsString()
     categoria: string

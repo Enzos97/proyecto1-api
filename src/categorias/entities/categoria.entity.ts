@@ -14,6 +14,9 @@ export class Categoria extends Document {
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Subcategoria' }] })
   subcategorias: Types.ObjectId[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Producto' }] })
+  productos: Types.ObjectId[];
 }
 
 export const CategoriaSchema = SchemaFactory.createForClass(Categoria);
