@@ -33,12 +33,12 @@ export class ProductosService {
       const productoPushCategory = await this.categoriasService.addProduct({subcategoriaId:category._id,productoId:createdProduct.id})
       console.log('pushCat',productoPushCategory)
 
-      const subcategory:any = await this.subcategoriaService.findOne(createProductoDto.tipo);
+      const subcategory:any = await this.subcategoriaService.findOne(createProductoDto.marca);
       console.log('subcategory',subcategory)
       if(!subcategory){
         throw new NotFoundException('la subcategoria no existe')
       }
-      const productoPushSubCategory = await this.subcategoriaService.addProduct({subcategoriaId:subcategory._id,productoId:subcategory.id})
+      const productoPushSubCategory = await this.subcategoriaService.addProduct({subcategoriaId:subcategory._id,productoId:createdProduct.id})
       console.log('pushSubCat',productoPushSubCategory)
       return createdProduct
     }catch(error){
