@@ -12,6 +12,7 @@ import { MercadopagoModule } from './mercadopago/mercadopago.module';
 import { DatabaseErrorHandlingModule } from './database-error-handling/database-error-handling.module';
 import { ImageUploadModule } from './image-upload/image-upload.module';
 import { CategoriasModule } from './categorias/categorias.module';
+import { UploadImageModule } from './upload-image/upload-image.module';
 
 
 @Module({
@@ -27,6 +28,7 @@ import { CategoriasModule } from './categorias/categorias.module';
     DatabaseErrorHandlingModule,
     ImageUploadModule,
     CategoriasModule,
+    UploadImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

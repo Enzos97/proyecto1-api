@@ -58,7 +58,7 @@ export class SubcategoriasService {
         // const regex = new RegExp(`^${idONombre}$`, 'i');
         // query.where('nombre', regex);
         const categoriaInDb = await this.subcategoryModel.find( {"nombre":
-        { $regex: new RegExp("^" + idONombre.toLowerCase(), "i") } })
+        { $regex: new RegExp("^" + idONombre, "i") } })
         if(!categoriaInDb.length){
           throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
         }

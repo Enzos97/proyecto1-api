@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 
 @Schema()
 export class Producto {
-  @Prop({unique:true ,required: true, index: true, })
+  @Prop({required: true})
   descripcion: string;
   
   @Prop({ required: true })
@@ -13,7 +13,7 @@ export class Producto {
   @Prop({ required: true })
   marca: string;
 
-  @Prop({ required: true })
+  @Prop({unique: true, required: true })
   modelo:string
 
   @Prop({ type: [String], required: true })

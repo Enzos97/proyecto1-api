@@ -81,14 +81,17 @@ export class CategoriasController {
     @Param('id') id: string, @Body() updateCategoriaDto: any,
     @UploadedFiles() files: Array<Express.Multer.File>
   ) {
-    const parsedProductDto: UpdateCategoriaDto = JSON.parse(
-      updateCategoriaDto.data,
-    );
+    console.log('updatedto',updateCategoriaDto);
+    // const parsedProductDto: UpdateCategoriaDto = JSON.parse(
+    //   updateCategoriaDto.data,
+    // );
+    // console.log('parse',parsedProductDto);
+    
       if(files){
         const imagesUrl = await this.imageUploadService.uploadImages(files);
-        parsedProductDto.imagen=imagesUrl
+        updateCategoriaDto.imagen=imagesUrl
       }
-      return this.categoriasService.update(id, parsedProductDto); 
+      return this.categoriasService.update(id, updateCategoriaDto); 
     }
   @Patch('sub/subcategoria:id')
   @UseInterceptors(FilesInterceptor('files'))
@@ -96,6 +99,7 @@ export class CategoriasController {
     @Param('id') id: string, @Body() updateSubcategoriaDto: any,
     @UploadedFiles() files: Array<Express.Multer.File>
   ) {
+    
     const parsedProductDto: UpdateSubcategoriaDto = JSON.parse(
       updateSubcategoriaDto.data,
     );

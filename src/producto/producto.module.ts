@@ -6,6 +6,7 @@ import { Producto, ProductoSchema } from './entities/producto.entity';
 import { CommonModule } from 'src/common/common.module';
 import { ImageUploadModule } from 'src/image-upload/image-upload.module';
 import { CategoriasModule } from 'src/categorias/categorias.module';
+import { UploadImageModule } from 'src/upload-image/upload-image.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CategoriasModule } from 'src/categorias/categorias.module';
     CommonModule,
     ImageUploadModule,
     CategoriasModule,
+    UploadImageModule
   ],
   controllers: [ProductosController],
   providers: [ProductosService]

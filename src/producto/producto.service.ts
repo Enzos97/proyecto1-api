@@ -9,6 +9,7 @@ import { Talle } from './interfaces/talles.interface';
 import { NotFoundException } from '@nestjs/common/exceptions';
 import { CategoriasService } from 'src/categorias/categorias.service';
 import { SubcategoriasService } from 'src/categorias/subcategorias.service';
+import { UploadImageService } from 'src/upload-image/upload-image.service';
 
 @Injectable()
 export class ProductosService {
@@ -17,12 +18,40 @@ export class ProductosService {
     private productModel: Model<Producto>,
     private commonService: CommonService,
     private categoriasService:CategoriasService,
-    private subcategoriaService:SubcategoriasService
+    private subcategoriaService:SubcategoriasService,
+    private uploadImageService:UploadImageService
     ) {}
 
+  // async create(createProductoDto:CreateProductoDto): Promise<Producto> {
+  //   try{
+  //     console.log('productDto',createProductoDto)
+  //     const createdProduct = await this.productModel.create(createProductoDto);
+
+  //     const category:any = await this.categoriasService.findOne(createProductoDto.tipo);
+  //     console.log('category',category)
+  //     if(!category){
+  //       throw new NotFoundException('la categoria no existe')
+  //     }
+  //     const productoPushCategory = await this.categoriasService.addProduct({subcategoriaId:category._id,productoId:createdProduct.id})
+  //     console.log('pushCat',productoPushCategory)
+
+  //     const subcategory:any = await this.subcategoriaService.findOne(createProductoDto.marca);
+  //     console.log('subcategory',subcategory)
+  //     if(!subcategory){
+  //       throw new NotFoundException('la subcategoria no existe')
+  //     }
+  //     const productoPushSubCategory = await this.subcategoriaService.addProduct({subcategoriaId:subcategory._id,productoId:createdProduct.id})
+  //     console.log('pushSubCat',productoPushSubCategory)
+  //     return createdProduct
+  //   }catch(error){
+  //     this.commonService.handleExceptions(error)
+  //   }
+  // }
   async create(createProductoDto:CreateProductoDto): Promise<Producto> {
     try{
       console.log('productDto',createProductoDto)
+      const uploadImages = await this.uploadImageService.uploadFiles(createProductoDto.modelo,createProductoDto.imagenes)
+      createProductoDto.imagenes=uploadImages.imageUrls
       const createdProduct = await this.productModel.create(createProductoDto);
 
       const category:any = await this.categoriasService.findOne(createProductoDto.tipo);
@@ -45,7 +74,6 @@ export class ProductosService {
       this.commonService.handleExceptions(error)
     }
   }
-
   async findAll(): Promise<Producto[]> {
     return this.productModel.find().exec();
   }

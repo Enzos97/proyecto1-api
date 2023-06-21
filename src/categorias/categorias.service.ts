@@ -5,7 +5,7 @@ import { SubcategoriasService } from './subcategorias.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommonService } from 'src/common/common.service';
 import { Categoria } from './entities/categoria.entity';
-import { Model } from 'mongoose';
+import { Model, isValidObjectId } from 'mongoose';
 import { Subcategoria } from './entities/subcategoria.entity';
 import { AddSubcategoriaDto } from './dto/addSubcategoria.dto';
 import { CreateSubcategoriaDto } from './dto/create-subcategoria.dto';
@@ -113,30 +113,43 @@ export class CategoriasService {
   async findOne(idONombre: string) {
     try {
       let query = this.categoryModel.findOne();
-  
-      if (Types.ObjectId.isValid(idONombre)) {
+    console.log('idONombre0',idONombre,isValidObjectId(idONombre))
+      if (isValidObjectId(idONombre)) {
+        console.log('hola')
         // Buscar por ID
         query.where('_id').equals(idONombre);
       } else {
         // Buscar por nombre (case sensitive)
         // const regex = new RegExp(`^${idONombre}$`, 'i');
         // query.where('nombre', regex);
-        const categoriaInDb = await this.categoryModel.find( {"nombre":
-        { $regex: new RegExp("^" + idONombre.toLowerCase(), "i") } })
-        if(!categoriaInDb.length){
-          throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
-        }
-        return categoriaInDb[0]
+        console.log('idONombre1',idONombre)
+        const regex = new RegExp("^" + idONombre, "i");
+        query.where('nombre', regex);
       }
   
       query.populate('subcategorias');
   
-      const categoria = await query.exec();
-      if (!categoria) {
+      // const categoria = await query.exec();
+      if (!query) {
         throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
       }
   
-      return categoria;
+      return query;
+    } catch (error) {
+      this.commonService.handleExceptions(error);
+    }
+  }
+
+  async findByName(name:string){
+    try {
+      console.log('name',name)
+      let query = this.categoryModel.findOne()
+      const regex = new RegExp("^" + name, "i");
+      query.where('nombre', regex);
+      if (!query) {
+        throw new NotFoundException(`No existe categoría con el nombre: ${name}`);
+      }
+      return query
     } catch (error) {
       this.commonService.handleExceptions(error);
     }

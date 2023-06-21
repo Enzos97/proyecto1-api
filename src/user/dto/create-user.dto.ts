@@ -2,7 +2,7 @@ import { IsEmail, IsNumber, IsOptional, IsString, Matches, Max, MaxLength, Min, 
 
 export class CreateUserDto {
     
-    @IsEmail()
+    @IsString()
     email: string;
 
     @IsOptional()
