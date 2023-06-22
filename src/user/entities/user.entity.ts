@@ -53,6 +53,38 @@ export class User {
       })
       code:number;
 
+      @Prop({required:false})
+      calle:string;
+
+      @Prop({required:false})
+      numeroDeCalle:string
+
+      @Prop({required:false})
+      infoAdicional:string;
+  
+      @Prop({required:false})
+      codigoPostal:string;
+  
+      @Prop({
+          required:false,
+          set: (val: string) => val.toLowerCase().trim(),
+          get: (val: string) => val,
+      })
+      ciudad:string;
+  
+      @Prop({
+          required:false,
+          set: (val: string) => val.toLowerCase().trim(),
+          get: (val: string) => val,
+      })
+      provincia:string; 
+  
+      @Prop({required:false})
+      pais:string;  
+
+      @Prop({required:false})
+      destinatario:string;
+
       @Prop()
       timestamps: true;
       

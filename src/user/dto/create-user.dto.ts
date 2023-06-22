@@ -38,4 +38,36 @@ export class CreateUserDto {
     @IsOptional()
     @IsString()
     dni: string;
+
+    @IsOptional()
+    @IsString()
+    calle:string;
+
+    @IsOptional()
+    @IsString()
+    numeroDeCalle:string
+
+    @IsOptional()
+    @IsString()
+    infoAdicional:string;
+
+    @IsOptional()
+    @IsString()
+    codigoPostal:string;
+
+    @IsOptional()
+    @IsString()
+    ciudad:string;
+
+    @IsOptional()
+    @IsString()
+    pais:string;  
+
+    @IsOptional()
+    @IsString()
+    provincia:string; 
+    
+    @IsOptional()
+    @IsString()
+    destinatario:string;
 }
