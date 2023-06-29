@@ -40,6 +40,18 @@ export class Producto {
 
   @Prop({ type: Types.ObjectId, ref: 'Subcategoria' })
   subcategoria: Types.ObjectId;
+
+  @Prop({default:0})
+  descuento?: number;
+
+  @Prop({default:true})
+  isActive:boolean;
+  
+  @Prop({default:true})
+  destacado:boolean
+
+  @Prop({required:false,default:Date.now})
+  productoDate: Date;
 }
 
 export const ProductoSchema = SchemaFactory.createForClass(Producto);

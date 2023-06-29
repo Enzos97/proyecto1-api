@@ -27,8 +27,8 @@ export class UploadImageController {
     return this.uploadImageService.update(+id, updateUploadImageDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.uploadImageService.remove(+id);
+  @Delete()
+  deleteFile(@Body() body: { id: string }) {
+    return this.uploadImageService.deleteFile(body.id);
   }
 }

@@ -12,6 +12,7 @@ import { CreateSubcategoriaDto } from './dto/create-subcategoria.dto';
 import { Types } from 'mongoose';
 import { ObjectId } from 'bson';
 import { AddProductDto } from './dto/addProduct.dto';
+import { UploadImageService } from 'src/upload-image/upload-image.service';
 @Injectable()
 export class CategoriasService {
   constructor(
@@ -21,11 +22,41 @@ export class CategoriasService {
     @InjectModel(Subcategoria.name) 
     private subcategoryModel: Model<Subcategoria>,
     private commonService: CommonService,
+    private uploadImageService:UploadImageService
   ){}
+  // async create(createCategoriaDto: CreateCategoriaDto) {
+  //   console.log(createCategoriaDto)
+  //   const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre,imagen:createCategoriaDto.imagen})
+  //   await newCategory.save()
+  //   if(createCategoriaDto.subcategorias){
+  //     console.log('if',createCategoriaDto)
+  //   const subcategoriasCreadas = await Promise.all(createCategoriaDto.subcategorias.map(async (nombre) => {
+  //     const subcategoria = new this.subcategoryModel({ nombre, categoria: newCategory._id });
+  //     return await subcategoria.save();
+  //   }));
+  //   const subcategoriasIds = subcategoriasCreadas.map(subcategoria => subcategoria._id);
+  //   console.log(subcategoriasIds)
+  //   console.log('newcatid',newCategory.id)
+  //   const prueba = await this.categoryModel.findByIdAndUpdate(
+  //     newCategory.id,
+  //     { $push: { subcategorias: { $each: subcategoriasIds } } },
+  //     { new: false }
+  //    );
+  //    console.log(prueba)
+  //   }
+  //   await newCategory.save()
+
+  //   return newCategory;
+  // }
   async create(createCategoriaDto: CreateCategoriaDto) {
     console.log(createCategoriaDto)
+    if(createCategoriaDto.imagen){
+      const uploadImages = await this.uploadImageService.uploadFiles(createCategoriaDto.nombre,createCategoriaDto.imagen)
+      createCategoriaDto.imagen=uploadImages.imageUrls
+    }
     const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre,imagen:createCategoriaDto.imagen})
     await newCategory.save()
+
     if(createCategoriaDto.subcategorias){
       console.log('if',createCategoriaDto)
     const subcategoriasCreadas = await Promise.all(createCategoriaDto.subcategorias.map(async (nombre) => {
@@ -46,7 +77,6 @@ export class CategoriasService {
 
     return newCategory;
   }
-
   async addSubcategory(addSubcategoriaDto: AddSubcategoriaDto) {
     try {
       await this.isInSubcategorias(addSubcategoriaDto)
@@ -97,31 +127,13 @@ export class CategoriasService {
     }
   }
 
-  // async findOne(id: string) {
-  //   try {
-  //     const categoria = await this.categoryModel.findById(id).populate('subcategorias').exec();
-  //     if(!categoria){
-  //       this.commonService.handleExceptions(new NotFoundException(`no existe categoria con id: ${id}`))
-  //     }
-  //     return categoria
-  //   } catch (error) {
-  //     this.commonService.handleExceptions(error)
-  //   }
-  // }
-  
-
   async findOne(idONombre: string) {
     try {
       let query = this.categoryModel.findOne();
     console.log('idONombre0',idONombre,isValidObjectId(idONombre))
       if (isValidObjectId(idONombre)) {
-        console.log('hola')
-        // Buscar por ID
         query.where('_id').equals(idONombre);
       } else {
-        // Buscar por nombre (case sensitive)
-        // const regex = new RegExp(`^${idONombre}$`, 'i');
-        // query.where('nombre', regex);
         console.log('idONombre1',idONombre)
         const regex = new RegExp("^" + idONombre, "i");
         query.where('nombre', regex);
@@ -154,11 +166,21 @@ export class CategoriasService {
       this.commonService.handleExceptions(error);
     }
   }
+  
   async update(id: string, updateCategoriaDto: UpdateCategoriaDto) {
     try {
-      return await this.categoryModel.findByIdAndUpdate(id, updateCategoriaDto, {
-        new: true,
-      });
+      const updateCategoria = await this.categoryModel.findById(id)
+      if(updateCategoriaDto.imagen){
+        const uploadImages = await this.uploadImageService.uploadFiles(updateCategoriaDto.nombre,updateCategoriaDto.imagen)
+        updateCategoria.imagen=[...updateCategoria.imagen,...uploadImages.imageUrls]
+      }
+
+      updateCategoria.nombre = updateCategoriaDto.nombre || updateCategoria.nombre 
+      updateCategoria.descripcion = updateCategoriaDto.descripcion || updateCategoria.descripcion
+
+      await updateCategoria.save()
+
+      return updateCategoria
     } catch (error) {
       this.commonService.handleExceptions(error)
     }
@@ -172,15 +194,8 @@ export class CategoriasService {
     }
   }
 
-  //helper
-  // async isInSubcategorias(addSubcategoriaDto: AddSubcategoriaDto){
-  //   const findCategoria = await this.findOne(addSubcategoriaDto.categoriaId)
-  //   const subEnCat = findCategoria.subcategorias.find(f=>f.id.toString()==addSubcategoriaDto.subcategoriaId)
-  //   if(subEnCat){
-  //     throw new BadRequestException('ya has añadido esta subcategoria.')
-  //   }
-  //   return false
-  // }
+  /////////////////////////helper///////////////////////////
+
   async isInSubcategorias(addSubcategoriaDto: AddSubcategoriaDto): Promise<boolean> {
     const categoria = await this.categoryModel.findById(addSubcategoriaDto.categoriaId).exec();
   

@@ -9,6 +9,7 @@ import { Categoria } from './entities/categoria.entity';
 import { Model, Types } from 'mongoose';
 import { AddProductDto } from './dto/addProduct.dto';
 import { CommonService } from 'src/common/common.service';
+import { UploadImageService } from 'src/upload-image/upload-image.service';
 
 @Injectable()
 export class SubcategoriasService {
@@ -18,8 +19,14 @@ export class SubcategoriasService {
     @InjectModel(Subcategoria.name) 
     private subcategoryModel: Model<Subcategoria>,
     private commonService: CommonService,
+    private uploadImageService:UploadImageService
   ){}
   async create(createSubcategoriaDto: CreateSubcategoriaDto) {
+    
+    if(createSubcategoriaDto.imagen){
+      const uploadImages = await this.uploadImageService.uploadFiles(createSubcategoriaDto.nombre,createSubcategoriaDto.imagen)
+      createSubcategoriaDto.imagen=uploadImages.imageUrls
+    }
     const newSubcategory = await this.subcategoryModel.create(createSubcategoriaDto)
     if(createSubcategoriaDto.categoria){
       await this.categoryModel.findByIdAndUpdate(
@@ -48,7 +55,8 @@ export class SubcategoriasService {
 
   async findOne(idONombre: string) {
     try {
-      let query = this.categoryModel.findOne();
+      console.log('idSubCat',idONombre,Types.ObjectId.isValid(idONombre))
+      let query = this.subcategoryModel.findOne();
   
       if (Types.ObjectId.isValid(idONombre)) {
         // Buscar por ID
@@ -60,16 +68,16 @@ export class SubcategoriasService {
         const categoriaInDb = await this.subcategoryModel.find( {"nombre":
         { $regex: new RegExp("^" + idONombre, "i") } })
         if(!categoriaInDb.length){
-          throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
+          throw new NotFoundException(`No existe subcategoría con el ID o nombre: ${idONombre}`);
         }
         return categoriaInDb[0]
       }
   
-      query.populate('subcategorias');
+      //query.populate('subcategorias');
   
       const categoria = await query.exec();
       if (!categoria) {
-        throw new NotFoundException(`No existe categoría con el ID o nombre: ${idONombre}`);
+        throw new NotFoundException(`No existe subcategoría con el ID o nombre: ${idONombre}`);
       }
   
       return categoria;
@@ -80,9 +88,17 @@ export class SubcategoriasService {
 
   async update(id: string, updateSubcategoriaDto: UpdateSubcategoriaDto) {
     try {
-      return await this.subcategoryModel.findByIdAndUpdate(id, updateSubcategoriaDto, {
-        new: true,
-      });
+      const updateSubcategoria = await this.subcategoryModel.findById(id)
+      if(updateSubcategoriaDto.imagen){
+        const uploadImages = await this.uploadImageService.uploadFiles(updateSubcategoriaDto.nombre,updateSubcategoriaDto.imagen)
+        updateSubcategoria.imagen=[...updateSubcategoria.imagen,...uploadImages.imageUrls]
+      }
+      updateSubcategoria.nombre = updateSubcategoriaDto.nombre || updateSubcategoria.nombre 
+      updateSubcategoria.descripcion = updateSubcategoriaDto.descripcion || updateSubcategoria.descripcion
+
+      await updateSubcategoria.save()
+
+      return updateSubcategoria
     } catch (error) {
       this.commonService.handleExceptions(error)
     }

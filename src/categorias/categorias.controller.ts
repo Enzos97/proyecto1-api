@@ -19,19 +19,8 @@ export class CategoriasController {
     ) {}
 
    @Post()
-   @UseInterceptors(FilesInterceptor('files'))
-   async create(
-    @Body() createCategoriaDto: any,
-    @UploadedFiles() files: Array<Express.Multer.File>,
-    ) {
-    const parsedCategoriaDto: CreateCategoriaDto = JSON.parse(
-      createCategoriaDto.data,
-    );
-    if (files) {
-      const imagesUrl = await this.imageUploadService.uploadImages(files);
-      parsedCategoriaDto.imagen = imagesUrl;
-    }
-    return this.categoriasService.create(parsedCategoriaDto);
+   async create(@Body() createCategoriaDto: CreateCategoriaDto) {
+    return this.categoriasService.create(createCategoriaDto);
   }
 
   @Post('addSubcategoria')
@@ -71,44 +60,18 @@ export class CategoriasController {
   }
 
   @Get('sub/subcategoria/:id')
-  findOneSub(@Param('term') term: string) {
-    return this.subcategoriasService.findOne(term);
+  findOneSub(@Param('id') id: string) {
+    return this.subcategoriasService.findOne(id);
   }
   //solo puede actualizar imagen y subcategoria
   @Patch(':id')
-  @UseInterceptors(FilesInterceptor('files'))
-  async update(
-    @Param('id') id: string, @Body() updateCategoriaDto: any,
-    @UploadedFiles() files: Array<Express.Multer.File>
-  ) {
-    console.log('updatedto',updateCategoriaDto);
-    // const parsedProductDto: UpdateCategoriaDto = JSON.parse(
-    //   updateCategoriaDto.data,
-    // );
-    // console.log('parse',parsedProductDto);
-    
-      if(files){
-        const imagesUrl = await this.imageUploadService.uploadImages(files);
-        updateCategoriaDto.imagen=imagesUrl
-      }
+  async update(@Param('id') id: string, @Body() updateCategoriaDto: UpdateCategoriaDto) {
       return this.categoriasService.update(id, updateCategoriaDto); 
     }
   @Patch('sub/subcategoria:id')
-  @UseInterceptors(FilesInterceptor('files'))
-  async updateSub(
-    @Param('id') id: string, @Body() updateSubcategoriaDto: any,
-    @UploadedFiles() files: Array<Express.Multer.File>
-  ) {
-    
-    const parsedProductDto: UpdateSubcategoriaDto = JSON.parse(
-      updateSubcategoriaDto.data,
-    );
-      if(files){
-        const imagesUrl = await this.imageUploadService.uploadImages(files);
-        parsedProductDto.imagen=imagesUrl
-      }
-      return this.subcategoriasService.update(id, parsedProductDto); 
-    }
+  async updateSub(@Param('id') id: string, @Body() updateSubcategoriaDto: UpdateSubcategoriaDto) {
+    return this.subcategoriasService.update(id, updateSubcategoriaDto); 
+  }
 
   @Delete(':id')
   remove(@Param('id',MongoIdPipe) id: string) {

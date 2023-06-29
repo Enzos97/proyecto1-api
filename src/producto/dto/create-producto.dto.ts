@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNumber, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { TallesDto } from "./talle-product.dto";
 import { Talle } from "../interfaces/talles.interface";
 
@@ -43,5 +43,17 @@ export class CreateProductoDto {
 
   @IsString()
   disciplina: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  destacado: boolean
+
+  @IsOptional()
+  @IsNumber()
+  descuento:number
 }
   

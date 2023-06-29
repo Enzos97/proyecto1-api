@@ -63,18 +63,8 @@ export class ProductosController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FilesInterceptor('files'))
-  async update(@Param('id') id: string, 
-    @Body() updateProductoDto:any,
-    @UploadedFiles() files: Array<Express.Multer.File>,
-  ) {
-    const parsedProductDto: UpdateProductoDto = JSON.parse(
-      updateProductoDto.data);
-    if (files) {
-      const imagesUrl = await this.imageUploadService.uploadImages(files);
-      parsedProductDto.imagenes = imagesUrl;
-    }
-    return this.productsService.update(id, parsedProductDto);
+  async update(@Param('id') id: string, @Body() updateProductoDto:UpdateProductoDto,) {
+    return this.productsService.update(id, updateProductoDto);
   }
 
   @Delete(':id')
