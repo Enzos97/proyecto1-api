@@ -7,6 +7,7 @@ import { ProductosModule } from 'src/producto/producto.module';
 import { CommonModule } from 'src/common/common.module';
 import { MercadopagoModule } from 'src/mercadopago/mercadopago.module';
 import { UserModule } from 'src/user/user.module';
+import { CuponModule } from 'src/cupon/cupon.module';
 
 @Module({
   imports:[
@@ -14,7 +15,8 @@ import { UserModule } from 'src/user/user.module';
     ProductosModule,
     MercadopagoModule,
     CommonModule,
-    UserModule
+    UserModule,
+    CuponModule
   ],
   controllers: [OrdenesController],
   providers: [OrdenesService]

@@ -10,6 +10,7 @@ import { MercadopagoService } from 'src/mercadopago/mercadopago.service';
 import { PaymentMethod } from 'src/producto/types/TypePayment.type';
 import { UserService } from 'src/user/user.service';
 import { CompraEstado } from './types/EstadosDeCompra.type';
+import { CuponModule } from 'src/cupon/cupon.module';
 
 @Injectable()
 export class OrdenesService {
@@ -18,11 +19,18 @@ export class OrdenesService {
     private readonly ordenModel: Model<Ordene>,
     private readonly productsService: ProductosService,
     private readonly mercadopagoService:MercadopagoService,
-    private readonly userService:UserService
+    private readonly userService:UserService,
+    private readonly cuponService:CuponModule
   ){
 
   }
-  
+    //FALTA
+    //*Probar el cupon
+    //*Generar el RES de CUPON
+    //*Generar su Validacion
+    //*Añadir Productos A la Orden (restando del stock)
+    //*Sacar Productos A la Orden (sumar al stock)
+    //eliminar Orden y devolver productos al stock
     async create(createOrdeneDto: CreateOrdeneDto): Promise<{ orden: Ordene; link: string; } | { orden: Ordene; }>{
       // Obtener los productos y su información completa
       const productosPromises = createOrdeneDto.productos.map(async (productoDto) => {
@@ -111,19 +119,38 @@ export class OrdenesService {
       return { orden:ordenGuardada };
     }
   
-  findAll() {
-    return `This action returns all ordenes`;
+  async findAll() {
+    const ordenes = await this.ordenModel.find()
+    return ordenes
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} ordene`;
   }
 
-  update(id: number, updateOrdeneDto: UpdateOrdeneDto) {
+  update(id: string, updateOrdeneDto: UpdateOrdeneDto) {
     return `This action updates a #${id} ordene`;
   }
+  async finalizarOrden(id: string, updateOrdeneDto: UpdateOrdeneDto) {
+    let orden = await this.ordenModel.findById(id);
+    let linkMp:string;
+    if (updateOrdeneDto.tipoDePago === PaymentMethod.MERCADOPAGO) {
+      const mercadopagoDto = orden.productos.map((producto) => ({
+        producto: producto.producto,
+        cantidad: producto.cantidad,
+      }));
+      const paymentLink = await this.mercadopagoService.create(mercadopagoDto);
+      // Aquí puedes hacer cualquier otro procesamiento necesario antes de retornar la orden
+      // Por ejemplo, podrías guardar el enlace de pago en la orden guardada en la base de datos
+      linkMp = paymentLink;
+    }
 
-  remove(id: number) {
+    if(updateOrdeneDto.estadoDeCompra===CompraEstado.ACEPTADO){
+      return { orden, link: linkMp };
+    }
+    return `This action updates a #${id} ordene`;
+  }
+  remove(id: string) {
     return `This action removes a #${id} ordene`;
   }
 }
