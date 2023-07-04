@@ -12,8 +12,11 @@ export class DatabaseErrorHandlingService {
     @InjectModel(DatabaseErrorHandling.name) 
     private dbErrorHandlingModel: Model<DatabaseErrorHandling>,
     ) {}
-  async create(createDatabaseErrorHandlingDto: CreateDatabaseErrorHandlingDto) {
-      const errorDb = await this.dbErrorHandlingModel.create(createDatabaseErrorHandlingDto)
+  async create(ErrorHandling: any) {
+      console.log('dto',ErrorHandling.response)
+      const errorToDto:CreateDatabaseErrorHandlingDto= ErrorHandling.response
+      //const {statusCode ,} = createDatabaseErrorHandlingDto
+      const errorDb = await this.dbErrorHandlingModel.create(errorToDto)
       return errorDb
   }
 

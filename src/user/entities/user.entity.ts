@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Role } from "../types/role.type";
+import { Ordene } from "src/ordenes/entities/ordene.entity";
+import { Types } from "mongoose";
 
 @Schema()
 export class User {
@@ -52,6 +54,41 @@ export class User {
         default:null
       })
       code:number;
+
+      @Prop({required:false})
+      calle:string;
+
+      @Prop({required:false})
+      numeroDeCalle:string
+
+      @Prop({required:false})
+      infoAdicional:string;
+  
+      @Prop({required:false})
+      codigoPostal:string;
+  
+      @Prop({
+          required:false,
+          set: (val: string) => val.toLowerCase().trim(),
+          get: (val: string) => val,
+      })
+      ciudad:string;
+  
+      @Prop({
+          required:false,
+          set: (val: string) => val.toLowerCase().trim(),
+          get: (val: string) => val,
+      })
+      provincia:string; 
+  
+      @Prop({required:false})
+      pais:string;  
+
+      @Prop({required:false})
+      destinatario:string;
+
+      @Prop({ type: [{ type: Types.ObjectId, ref: 'Ordene' }] })
+      misCompras:Types.ObjectId[];
 
       @Prop()
       timestamps: true;

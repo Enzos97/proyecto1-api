@@ -10,6 +10,11 @@ import { ProductosModule } from './producto/producto.module';
 import { CommonModule } from './common/common.module';
 import { MercadopagoModule } from './mercadopago/mercadopago.module';
 import { DatabaseErrorHandlingModule } from './database-error-handling/database-error-handling.module';
+import { ImageUploadModule } from './image-upload/image-upload.module';
+import { CategoriasModule } from './categorias/categorias.module';
+import { UploadImageModule } from './upload-image/upload-image.module';
+import { OrdenesModule } from './ordenes/ordenes.module';
+import { CuponModule } from './cupon/cupon.module';
 
 
 @Module({
@@ -23,6 +28,11 @@ import { DatabaseErrorHandlingModule } from './database-error-handling/database-
     ProductosModule,
     CommonModule,
     DatabaseErrorHandlingModule,
+    ImageUploadModule,
+    CategoriasModule,
+    UploadImageModule,
+    OrdenesModule,
+    CuponModule,
   ],
   controllers: [AppController],
   providers: [AppService],
