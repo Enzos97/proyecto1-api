@@ -13,6 +13,7 @@ import { SendCodeDto } from './dto/send-code.dto';
 import { NewPasswordUserDto } from './dto/change-password.dto';
 import { CommonService } from 'src/common/common.service';
 import { loginCode } from './interfaces/login-code.interface';
+import { AddNewPurchaseDto } from './dto/addNewPurchase.dto';
 
 @Injectable()
 export class UserService {
@@ -149,6 +150,13 @@ export class UserService {
       throw new NotFoundException('usuario ingresado no encontrado.')
     }
     return user ;
+  }
+
+  async addNewPurchase(idUser:string, idPurchase:string){
+    return await this.userModel.updateOne(
+      { _id: idUser },
+      { $push: { misCompras: idPurchase} },
+    );
   }
 
   async remove(id: string) {

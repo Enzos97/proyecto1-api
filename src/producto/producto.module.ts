@@ -17,6 +17,7 @@ import { UploadImageModule } from 'src/upload-image/upload-image.module';
     UploadImageModule
   ],
   controllers: [ProductosController],
-  providers: [ProductosService]
+  providers: [ProductosService],
+  exports: [ProductosService]
 })
 export class ProductosModule {}

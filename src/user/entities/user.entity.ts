@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Role } from "../types/role.type";
+import { Ordene } from "src/ordenes/entities/ordene.entity";
+import { Types } from "mongoose";
 
 @Schema()
 export class User {
@@ -84,6 +86,9 @@ export class User {
 
       @Prop({required:false})
       destinatario:string;
+
+      @Prop({ type: [{ type: Types.ObjectId, ref: 'Ordene' }] })
+      misCompras:Types.ObjectId[];
 
       @Prop()
       timestamps: true;

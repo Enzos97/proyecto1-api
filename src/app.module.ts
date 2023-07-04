@@ -13,6 +13,7 @@ import { DatabaseErrorHandlingModule } from './database-error-handling/database-
 import { ImageUploadModule } from './image-upload/image-upload.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { UploadImageModule } from './upload-image/upload-image.module';
+import { OrdenesModule } from './ordenes/ordenes.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { UploadImageModule } from './upload-image/upload-image.module';
     ImageUploadModule,
     CategoriasModule,
     UploadImageModule,
+    OrdenesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

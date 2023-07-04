@@ -46,11 +46,11 @@ export class CreateProductoDto {
 
   @IsOptional()
   @IsBoolean()
-  isActive: boolean
+  isActive?: boolean
 
   @IsOptional()
   @IsBoolean()
-  destacado: boolean
+  destacado?: boolean
 
   @IsOptional()
   @IsNumber()

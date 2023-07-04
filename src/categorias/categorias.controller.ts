@@ -28,19 +28,8 @@ export class CategoriasController {
     return this.categoriasService.addSubcategory(addSubcategoriaDto);
   }
   @Post('subcategoria')
-  @UseInterceptors(FilesInterceptor('files'))
-  async createSubcategoria(
-    @Body() createSubcategoriaDto: any,
-    @UploadedFiles() files: Array<Express.Multer.File>,
-  ) {
-    const parsedCategoriaDto: CreateSubcategoriaDto = JSON.parse(
-      createSubcategoriaDto.data,
-    );
-    if (files) {
-      const imagesUrl = await this.imageUploadService.uploadImages(files);
-      parsedCategoriaDto.imagen = imagesUrl;
-    }
-    return this.subcategoriasService.create(parsedCategoriaDto);
+  createSubcategoria(@Body() createSubcategoriaDto: CreateSubcategoriaDto) {
+    return this.subcategoriasService.create(createSubcategoriaDto);
   }
   @Delete('removeSubcategory')
   async removeSubcategory(@Body() removeSubcategoriadto:AddSubcategoriaDto){

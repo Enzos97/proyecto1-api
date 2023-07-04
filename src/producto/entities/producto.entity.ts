@@ -47,7 +47,7 @@ export class Producto {
   @Prop({default:true})
   isActive:boolean;
   
-  @Prop({default:true})
+  @Prop({default:false})
   destacado:boolean
 
   @Prop({required:false,default:Date.now})

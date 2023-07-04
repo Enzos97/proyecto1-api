@@ -29,6 +29,9 @@ export class ProductosService {
         const uploadImages = await this.uploadImageService.uploadFiles(createProductoDto.modelo,createProductoDto.imagenes)
         createProductoDto.imagenes=uploadImages.imageUrls
       }
+      if(createProductoDto.descuento>0){
+        createProductoDto.precio= (createProductoDto.precio*createProductoDto.descuento)/100
+      }
       const createdProduct = await this.productModel.create(createProductoDto);
 
       const category:any = await this.categoriasService.findOne(createProductoDto.tipo);
@@ -72,7 +75,7 @@ export class ProductosService {
   }
 
   async update(id: string, updateProductoDto:UpdateProductoDto): Promise<Producto> {
-    console.log(id,updateProductoDto)
+    console.log('id',id,'dto',updateProductoDto)
     let updateProduct = await this.productModel.findById(id)
     console.log('updateProduct',updateProduct)
     if (updateProductoDto.talle) {
@@ -97,16 +100,26 @@ export class ProductosService {
     updateProduct.genero = updateProductoDto.genero || updateProduct.genero;
     updateProduct.proveedor = updateProductoDto.proveedor || updateProduct.proveedor;
     updateProduct.disciplina = updateProductoDto.disciplina || updateProduct.disciplina;
-    updateProduct.isActive = updateProductoDto.isActive || updateProduct.isActive;
-    updateProduct.destacado = updateProductoDto.destacado || updateProduct.destacado
-    updateProduct.descuento = updateProductoDto.descuento || updateProduct.descuento
+    updateProduct.isActive=updateProductoDto.hasOwnProperty('isActive')?updateProductoDto.isActive:updateProduct.isActive;
+    updateProduct.destacado=updateProductoDto.hasOwnProperty('destacado')?updateProductoDto.destacado:updateProduct.destacado;
+    updateProduct.descuento = updateProductoDto.descuento || updateProduct.descuento;
+    // updateProductDto.hasOwnProperty('freeShipping')
+    // ? updateProductDto.freeShipping
+    // : productFind.freeShipping;
     //const updateProduct = await this.productModel.findByIdAndUpdate(id, updateProductoDto, { new: true }).exec();
+    console.log(1,updateProduct)
     await updateProduct.save()
-    console.log(updateProduct)
+    console.log(2,updateProduct)
     return updateProduct
 
   }
-
+  async updateStock(productId: string, stockTalles: Talle[]): Promise<void> {
+    await this.productModel.findByIdAndUpdate(
+      productId,
+      { talle: stockTalles },
+      { new: true }
+    );
+  }
   async remove(id: string): Promise<Producto> {
     return this.productModel.findByIdAndRemove(id).exec();
   }

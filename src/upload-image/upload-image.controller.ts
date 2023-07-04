@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UploadImageService } from './upload-image.service';
-import { CreateUploadImageDto } from './dto/create-upload-image.dto';
+
 import { UpdateUploadImageDto } from './dto/update-upload-image.dto';
+import { CreateUploadImageDto } from './dto/create-upload-image.dto';
+import { DeleteUploadImageDto } from './dto/delete-upload-image.dto';
 
 @Controller('upload-image')
 export class UploadImageController {
@@ -28,7 +30,7 @@ export class UploadImageController {
   }
 
   @Delete()
-  deleteFile(@Body() body: { id: string }) {
-    return this.uploadImageService.deleteFile(body.id);
+  deleteFile(@Body() deleteUploadImageDto: DeleteUploadImageDto) {
+    return this.uploadImageService.deleteFile(deleteUploadImageDto);
   }
 }
