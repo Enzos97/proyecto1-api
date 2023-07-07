@@ -12,6 +12,8 @@ export class Ordene extends Document {
     usuario:Types.ObjectId;
     @Prop({required:false})
     totalSinDescuento: number;
+    @Prop({required:false,default:null})
+    nombreCupon:string;
     @Prop({required:false, default:0})
     cupon: number;
     @Prop({required:false})

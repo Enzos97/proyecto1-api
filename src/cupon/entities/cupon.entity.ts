@@ -13,7 +13,7 @@ export class Cupon extends Document {
     creacion:Date
     @Prop({required: true})
     vencimiento:Date
-    @Prop({ required:false, type: Types.ObjectId, ref: 'User' })
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
     userId:Types.ObjectId[]
 }
 export const CuponSchema = SchemaFactory.createForClass(Cupon);

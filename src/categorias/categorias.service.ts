@@ -50,10 +50,10 @@ export class CategoriasService {
   // }
   async create(createCategoriaDto: CreateCategoriaDto) {
     console.log(createCategoriaDto)
-    if(createCategoriaDto.imagen){
-      const uploadImages = await this.uploadImageService.uploadFiles(createCategoriaDto.nombre,createCategoriaDto.imagen)
-      createCategoriaDto.imagen=uploadImages.imageUrls
-    }
+    // if(createCategoriaDto.imagen){
+    //   const uploadImages = await this.uploadImageService.uploadFile(createCategoriaDto.nombre,createCategoriaDto.imagen)
+    //   createCategoriaDto.imagen=uploadImages.imageUrl
+    // }
     const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre,imagen:createCategoriaDto.imagen})
     await newCategory.save()
 
@@ -170,10 +170,10 @@ export class CategoriasService {
   async update(id: string, updateCategoriaDto: UpdateCategoriaDto) {
     try {
       const updateCategoria = await this.categoryModel.findById(id)
-      if(updateCategoriaDto.imagen){
-        const uploadImages = await this.uploadImageService.uploadFiles(updateCategoriaDto.nombre,updateCategoriaDto.imagen)
-        updateCategoria.imagen=[...updateCategoria.imagen,...uploadImages.imageUrls]
-      }
+      // if(updateCategoriaDto.imagen){
+      //   const uploadImages = await this.uploadImageService.uploadFiles(updateCategoriaDto.nombre,updateCategoriaDto.imagen)
+      //   updateCategoria.imagen=[...updateCategoria.imagen,...uploadImages.imageUrls]
+      // }
 
       updateCategoria.nombre = updateCategoriaDto.nombre || updateCategoria.nombre 
       updateCategoria.descripcion = updateCategoriaDto.descripcion || updateCategoria.descripcion

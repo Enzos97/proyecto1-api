@@ -140,7 +140,7 @@ export class UserService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} user`;
   }
 
@@ -157,6 +157,23 @@ export class UserService {
       { _id: idUser },
       { $push: { misCompras: idPurchase} },
     );
+  }
+  
+  async obtenerUltimaOrdenDeCompra(userId: string) {
+    const usuario:any = await this.userModel
+      .findById(userId)
+      .populate({ path: 'misCompras', options: { sort: { creacion: -1 } } });
+
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID '${userId}' no encontrado.`);
+    }
+
+    const ultimaOrden = usuario.misCompras[0];
+    if (ultimaOrden && ultimaOrden.estadoDeCompra === 'PENDIENTE') {
+      return ultimaOrden;
+    }
+  
+    return false;
   }
 
   async remove(id: string) {

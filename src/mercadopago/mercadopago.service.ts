@@ -16,7 +16,7 @@ export class MercadopagoService {
   async create(createMercadopagoDto: any) {
     const items = createMercadopagoDto.map(({ producto, cantidad }) => {
       const item: item = {
-        title: producto.modelo,
+        title: producto.descripcion,
         quantity: cantidad,
         currency_id: "ARS", // Cambia esto si usas una moneda diferente
         unit_price: producto.descuento > 0 ? producto.precio - (producto.precio * producto.descuento) / 100 : producto.precio
@@ -24,7 +24,7 @@ export class MercadopagoService {
     
       return item;
     });
-    console.log('items',items)
+    //console.log('items',items)
     const preference: any = {
       items: items,
       back_urls: {

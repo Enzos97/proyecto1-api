@@ -16,6 +16,9 @@ export class CreateOrdeneDto {
     @IsNumber()
     @IsOptional()
     cupon: number;
+    @IsString()
+    @IsOptional()
+    nombreCupon: string;
     @IsNumber()
     @IsOptional()
     totalConDescuento: number;

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CuponService } from './cupon.service';
 import { CreateCuponDto } from './dto/create-cupon.dto';
 import { UpdateCuponDto } from './dto/update-cupon.dto';
+import { ValidarCuponDto } from './dto/validar-aplicar.dto';
 
 @Controller('cupon')
 export class CuponController {
@@ -11,7 +12,14 @@ export class CuponController {
   create(@Body() createCuponDto: CreateCuponDto) {
     return this.cuponService.create(createCuponDto);
   }
-
+  @Post('validar/descuento')
+  validar(@Body() validarCuponDto: ValidarCuponDto) {
+    return this.cuponService.applyCupon(validarCuponDto);
+  }
+  @Post('aplicar/descuento')
+  aplicar(@Body() validarCuponDto: ValidarCuponDto) {
+    return this.cuponService.restarCupon(validarCuponDto);
+  }
   @Get()
   findAll() {
     return this.cuponService.findAll();

@@ -10,7 +10,9 @@ import { MercadopagoService } from 'src/mercadopago/mercadopago.service';
 import { PaymentMethod } from 'src/producto/types/TypePayment.type';
 import { UserService } from 'src/user/user.service';
 import { CompraEstado } from './types/EstadosDeCompra.type';
-import { CuponModule } from 'src/cupon/cupon.module';
+import { CuponService } from 'src/cupon/cupon.service';
+import { log } from 'console';
+import { AddOrUpdateProductDto } from './dto/addOrUpdateProduct.dto';
 
 @Injectable()
 export class OrdenesService {
@@ -20,7 +22,7 @@ export class OrdenesService {
     private readonly productsService: ProductosService,
     private readonly mercadopagoService:MercadopagoService,
     private readonly userService:UserService,
-    private readonly cuponService:CuponModule
+    private readonly cuponService:CuponService
   ){
 
   }
@@ -41,35 +43,32 @@ export class OrdenesService {
         return {
           producto,
           cantidad: productoDto.cantidad,
-          size: productoDto.size,
         };
       });
       const productos = await Promise.all(productosPromises);
       
       // Restar el stock de los productos
-      for (const producto of productos) {
-        const stockTalles = producto.producto.talle;
-        const talleSeleccionado = stockTalles.find(talle => talle.talle === producto.size);
-        if (!talleSeleccionado || talleSeleccionado.cantidad < producto.cantidad) {
-          throw new BadRequestException(`No hay suficiente stock para el producto '${producto.producto.modelo}' en el talle '${producto.size}'.`);
-        }
-        talleSeleccionado.cantidad -= producto.cantidad;
-        //await this.productsService.updateStock(producto.producto._id.toString(), stockTalles);
-      }
       // Calcular el total sin descuento
       let totalSinDescuento = 0;
       let totalConDescuento = 0
-      for (const producto of productos) {
+      for (let producto of productos) {
         totalSinDescuento += producto.producto.precio * producto.cantidad;
         totalConDescuento = totalSinDescuento
+      }
+      for (let producto of productos) {
         if (producto.producto.descuento !== 0) {
-          const subtotalProducto = producto.producto.precio * producto.cantidad;
-          const descuentoProducto = (subtotalProducto * producto.producto.descuento) / 100;
+          let subtotalProducto = producto.producto.precio * producto.cantidad;
+          let descuentoProducto = (subtotalProducto * producto.producto.descuento) / 100;
+          console.log(subtotalProducto,descuentoProducto);
+          
+          console.log(0,totalSinDescuento,totalConDescuento);
           totalConDescuento -= descuentoProducto;
         }
-        await producto.producto.save();
+        console.log(1,totalSinDescuento,totalConDescuento);
+
       }
-  
+      console.log(2,totalSinDescuento,totalConDescuento);
+      
       // Aplicar el descuento si está presente
       if (createOrdeneDto.cupon) {
         for (const producto of productos) {
@@ -92,6 +91,8 @@ export class OrdenesService {
         tipoDePago: createOrdeneDto.tipoDePago,
         envio: createOrdeneDto.envio,
         creacion: new Date(),
+        cupon: createOrdeneDto.cupon,
+        nombreCupon: createOrdeneDto.nombreCupon
       });
       
       //guardarOrdenEnPerfilDelUsusario
@@ -100,19 +101,18 @@ export class OrdenesService {
       // Guardar la orden en la base de datos
       const ordenGuardada = await nuevaOrden.save();
       let linkMp:string;
-      // Generar el enlace de pago con Mercado Pago
-      if (createOrdeneDto.tipoDePago === PaymentMethod.MERCADOPAGO) {
-        const mercadopagoDto = productos.map((producto) => ({
-          producto: producto.producto,
-          cantidad: producto.cantidad,
-        }));
-        const paymentLink = await this.mercadopagoService.create(mercadopagoDto);
-        // Aquí puedes hacer cualquier otro procesamiento necesario antes de retornar la orden
-        // Por ejemplo, podrías guardar el enlace de pago en la orden guardada en la base de datos
-        linkMp = paymentLink;
-      }
 
       if(createOrdeneDto.estadoDeCompra===CompraEstado.ACEPTADO){
+        if (createOrdeneDto.tipoDePago === PaymentMethod.MERCADOPAGO) {
+          const mercadopagoDto = productos.map((producto) => ({
+            producto: producto.producto,
+            cantidad: producto.cantidad,
+          }));
+          const paymentLink = await this.mercadopagoService.create(mercadopagoDto);
+          // Aquí puedes hacer cualquier otro procesamiento necesario antes de retornar la orden
+          // Por ejemplo, podrías guardar el enlace de pago en la orden guardada en la base de datos
+          linkMp = paymentLink;
+        }
         return { orden:ordenGuardada, link: linkMp };
       }
   
@@ -124,33 +124,136 @@ export class OrdenesService {
     return ordenes
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} ordene`;
+  async findOne(id: string) {
+    return await this.ordenModel.findById(id)
   }
 
-  update(id: string, updateOrdeneDto: UpdateOrdeneDto) {
-    return `This action updates a #${id} ordene`;
+  async findLastPending(){
+    let lastOrder = await this.ordenModel
+    .findOne({ estadoDeCompra: CompraEstado.PENDIENTE })
+    .sort({ creacion: -1 })
+    .limit(1)
+    .exec();
+    if(!lastOrder){
+      return false
+    }
+    return lastOrder
   }
-  async finalizarOrden(id: string, updateOrdeneDto: UpdateOrdeneDto) {
-    let orden = await this.ordenModel.findById(id);
-    let linkMp:string;
-    if (updateOrdeneDto.tipoDePago === PaymentMethod.MERCADOPAGO) {
-      const mercadopagoDto = orden.productos.map((producto) => ({
-        producto: producto.producto,
-        cantidad: producto.cantidad,
-      }));
-      const paymentLink = await this.mercadopagoService.create(mercadopagoDto);
-      // Aquí puedes hacer cualquier otro procesamiento necesario antes de retornar la orden
-      // Por ejemplo, podrías guardar el enlace de pago en la orden guardada en la base de datos
-      linkMp = paymentLink;
+  async update(id: string, updateOrdeneDto: UpdateOrdeneDto) {
+    let orden:any = await this.ordenModel.findById(id);
+    let linkMp: string;
+    console.log('updateOrdeneDto', updateOrdeneDto, orden);
+  
+    if (updateOrdeneDto.productos) {
+      for (const producto of updateOrdeneDto.productos) {
+        const index = orden.productos.findIndex((p) => p.producto._id.toString() === producto.producto);
+        if (index !== -1) {
+          // El producto ya existe en la orden, actualiza la cantidad
+          orden.productos[index].cantidad += producto.cantidad;
+          await this.ordenModel.findByIdAndUpdate(orden.id, orden, { new: true });
+        } else {
+          // El producto es nuevo, busca el producto en la base de datos y añádelo a la orden
+          const productoDB = await this.productsService.findOne(producto.producto);
+          if (!productoDB) {
+            throw new NotFoundException(`Producto con ID '${producto.producto}' no encontrado.`);
+          }
+          orden.productos.push({
+            producto: productoDB,
+            cantidad: producto.cantidad,
+          });
+        }
+        await orden.save()
+      }
     }
 
+    if(updateOrdeneDto.nombreCupon){
+      const cuponValid = await this.cuponService.applyCupon({nombre:updateOrdeneDto.nombreCupon,userId:orden.usuario.toString()})
+      console.log('cuponValid',cuponValid,orden.usuario.toString());
+      
+      orden.cupon=+cuponValid
+      orden.nombreCupon=updateOrdeneDto.nombreCupon
+      await orden.save()
+    }
+    console.log(0,orden)
     if(updateOrdeneDto.estadoDeCompra===CompraEstado.ACEPTADO){
+      if(orden.cupon){
+        for(const producto of orden.productos){
+          if(producto.producto.descuento===0){
+            producto.producto.descuento= orden.cupon
+            //console.log('producto.producto.precio',producto.producto.preciocondesc);
+            await orden.save()
+          }
+        }
+      }
+      for (const producto of orden.productos) {
+        if (producto.producto.descuento !== 0) {
+          producto.producto.preciocondesc= producto.producto.precio-((producto.producto.precio*producto.producto.descuento)/100)
+          await orden.save()          
+        }
+      }
+      let total = 0; // Mover la declaración de la variable aquí, fuera del bucle
+      let totalsin = 0;
+      for (const producto of orden.productos) {
+        totalsin += (producto.producto.precio*producto.cantidad);
+        total += ((producto.producto.preciocondesc||producto.producto.precio)*producto.cantidad);
+      }
+      console.log('total',total,totalsin)
+      orden.totalConDescuento = total;
+      orden.totalSinDescuento = totalsin;
+      await orden.save();
+      if (orden.tipoDePago === PaymentMethod.MERCADOPAGO) {
+        const mercadopagoDto = orden.productos.map((producto) => ({
+          producto: producto.producto,
+          cantidad: producto.cantidad,
+        }));
+        const paymentLink = await this.mercadopagoService.create(mercadopagoDto);
+        // Aquí puedes hacer cualquier otro procesamiento necesario antes de retornar la orden
+        // Por ejemplo, podrías guardar el enlace de pago en la orden guardada en la base de datos
+        linkMp = paymentLink;
+      }
+      orden.estadoDeCompra = updateOrdeneDto.estadoDeCompra
+      await orden.save()
       return { orden, link: linkMp };
     }
-    return `This action updates a #${id} ordene`;
+    await this.ordenModel.findByIdAndUpdate(orden.id,updateOrdeneDto,{new:true})
+    return {orden}
   }
-  remove(id: string) {
-    return `This action removes a #${id} ordene`;
+  
+  async addOrUpdateProductOrStock(addOrUpdateProductDto: AddOrUpdateProductDto) {
+    let findOrden: any = await this.ordenModel.findById(addOrUpdateProductDto.orderId);
+    console.log('findOrden',findOrden);
+    
+    for (const producto of addOrUpdateProductDto.productos) {
+      let findPro = findOrden.productos.find((f) => f.producto._id.toString() === producto.producto);
+      if (findPro) {
+        // El producto ya existe en la orden, actualiza la cantidad
+        console.log('findPro',findPro);
+        findPro.cantidad = producto.cantidad;
+        findOrden.productos=[{
+          producto: findPro.producto,
+          cantidad: findPro.cantidad,
+        }]
+        await findOrden.save();
+      } else {
+        // El producto es nuevo, busca el producto en la base de datos y añádelo a la orden
+        const productoDB = await this.productsService.findOne(producto.producto);
+        if (!productoDB) {
+          throw new NotFoundException(`Producto con ID '${producto.producto}' no encontrado.`);
+        }
+        findOrden.productos.push({
+          producto: productoDB,
+          cantidad: producto.cantidad,
+        });
+        await findOrden.save();
+      }
+    }
+    
+    await findOrden.save();
+  
+    return findOrden;
+  }
+
+  async remove(id: string) {
+    return await this.ordenModel.findByIdAndRemove(id);
   }
 }

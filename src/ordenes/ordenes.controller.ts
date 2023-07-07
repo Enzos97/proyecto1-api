@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { OrdenesService } from './ordenes.service';
 import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
+import { AddOrUpdateProductDto } from './dto/addOrUpdateProduct.dto';
 
 @Controller('ordenes')
 export class OrdenesController {
@@ -21,10 +22,18 @@ export class OrdenesController {
   findOne(@Param('id') id: string) {
     return this.ordenesService.findOne(id);
   }
+  @Get('ultima/pendiente')
+  findlastPending(){
+    return this.ordenesService.findLastPending();
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrdeneDto: UpdateOrdeneDto) {
     return this.ordenesService.update(id, updateOrdeneDto);
+  }
+  @Patch('carrito/stock')
+  updateCarrito(@Body() addOrUpdateProductDto: AddOrUpdateProductDto) {
+    return this.ordenesService.addOrUpdateProductOrStock(addOrUpdateProductDto);
   }
 
   @Delete(':id')
