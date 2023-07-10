@@ -27,4 +27,4 @@ export class Ordene extends Document {
     @Prop({required:false,default:CompraEstado.PENDIENTE})
     estadoDeCompra: CompraEstado;
 }
-export const OrdenSchema = SchemaFactory.createForClass(Ordene);
+export const OrdenesSchema = SchemaFactory.createForClass(Ordene);

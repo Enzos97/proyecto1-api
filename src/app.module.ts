@@ -15,6 +15,8 @@ import { CategoriasModule } from './categorias/categorias.module';
 import { UploadImageModule } from './upload-image/upload-image.module';
 import { OrdenesModule } from './ordenes/ordenes.module';
 import { CuponModule } from './cupon/cupon.module';
+import { OrdenModule } from './orden/orden.module';
+import { ClienteModule } from './cliente/cliente.module';
 
 
 @Module({
@@ -33,6 +35,8 @@ import { CuponModule } from './cupon/cupon.module';
     UploadImageModule,
     OrdenesModule,
     CuponModule,
+    OrdenModule,
+    ClienteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

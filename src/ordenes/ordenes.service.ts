@@ -165,6 +165,17 @@ export class OrdenesService {
         await orden.save()
       }
     }
+    
+    let total = 0; // Mover la declaración de la variable aquí, fuera del bucle
+    let totalsin = 0;
+    for (const producto of orden.productos) {
+      totalsin += (producto.producto.precio*producto.cantidad);
+      total += ((producto.producto.preciocondesc||producto.producto.precio)*producto.cantidad);
+    }
+    console.log('total',total,totalsin)
+    orden.totalConDescuento = total;
+    orden.totalSinDescuento = totalsin;
+    await orden.save();
 
     if(updateOrdeneDto.nombreCupon){
       const cuponValid = await this.cuponService.applyCupon({nombre:updateOrdeneDto.nombreCupon,userId:orden.usuario.toString()})
