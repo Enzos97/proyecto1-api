@@ -3,14 +3,12 @@ import { MailService } from './mail.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { UserModule } from 'src/user/user.module';
 import { CommonModule } from './../common/common.module';
 
 @Global()
 @Module({
   imports: [
-  ScheduleModule.forRoot(),
+ScheduleModule.forRoot(),
   ConfigModule,
   MailerModule.forRootAsync({
     useFactory: async (config: ConfigService) => ({

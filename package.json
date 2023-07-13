@@ -36,6 +36,7 @@
     "class-validator": "^0.14.0",
     "cloudinary": "^1.37.0",
     "mercadopago": "^1.5.16",
+    "moment": "^2.29.4",
     "mongoose": "^7.3.1",
     "nodemailer": "^6.9.3",
     "passport": "^0.6.0",

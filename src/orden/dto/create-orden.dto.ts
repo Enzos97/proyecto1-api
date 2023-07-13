@@ -49,6 +49,9 @@ export class CreateOrdenDto {
     tokenClient:number;
 
     @IsOptional()
+    proofOfPayment:string[]
+    
+    @IsOptional()
     @IsBoolean()
     isFacturaA:boolean
 }

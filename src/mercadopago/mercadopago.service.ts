@@ -4,6 +4,8 @@ import { UpdateMercadopagoDto } from './dto/update-mercadopago.dto';
 import { item } from './interfaces/item.interface';
 import mercadopago from 'mercadopago';
 
+
+
 @Injectable()
 export class MercadopagoService {
 
@@ -28,9 +30,9 @@ export class MercadopagoService {
     const preference: any = {
       items: items,
       back_urls: {
-        success: "http://localhost:3003/mercadopago/success",
+        success: "https://proyecto1-front.vercel.app/checkout/success",
         // pending: "https://e720-190-237-16-208.sa.ngrok.io/pending",
-        // failure: "https://e720-190-237-16-208.sa.ngrok.io/failure",
+        failure: "https://proyecto1-front.vercel.app/checkout/failure",
       },
     };
 

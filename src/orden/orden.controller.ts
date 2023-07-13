@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { OrdenService } from './orden.service';
 import { CreateOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import moment from 'moment';
 
 @Controller('orden')
 export class OrdenController {
@@ -13,8 +15,13 @@ export class OrdenController {
   }
 
   @Get()
-  findAll() {
-    return this.ordenService.findAll();
+  findAll(@Query()  paginationDto:PaginationDto) {
+    return this.ordenService.findAll(paginationDto);
+  }
+
+  @Get('/filtro/fechas')
+  getOrdenesByDate(@Query() paginationDto:PaginationDto) {
+    return this.ordenService.getOrdenesByDateRange(paginationDto);
   }
 
   @Get(':id')

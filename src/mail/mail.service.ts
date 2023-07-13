@@ -1,7 +1,7 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer/dist';
-import { CommonService } from 'src/common/common.service';
 
+import { CommonService } from 'src/common/common.service';
 @Injectable()
 export class MailService {
   constructor(
@@ -13,7 +13,7 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to: user,
-        from: `"ECOMMERCE" <${process.env.MAIL_FROM}>`, // override default from
+        from: `"REYES DEL OESTE" <${process.env.MAIL_FROM}>`, // override default from
         subject: 'Verification Code',
         text: `Your verification code is: ${code}`,
       });
@@ -21,17 +21,45 @@ export class MailService {
       this.commonService.handleExceptions(error)
     }
   }
-  async send_code_mail_for_order(user: string, id:string, code: number) {
+  async send_code_mail_for_order(user: string, id:string, code: number, orderData:any,  fullName:string) {
     try {
-      console.log('mail dto',user,id,code)
+      console.log('mail dto',user,id,code,fullName)
       const verificationLink = `https://vagimports.vercel.app/token`;
   
       await this.mailerService.sendMail({
         to: user,
-        from: `"VAGIMPORTS" <${process.env.MAIL_FROM}>`, // override default from
+        from: `"REYES DEL OESTE" <${process.env.MAIL_FROM}>`, // override default from
         subject: 'Codigo de verificacion y link para cargar comprobante',
         html: `<p>Tu codigo de verificacion es: ${code}</p>
-               <p>Click <a href="${verificationLink}">aqui</a> para verificar su cuenta y cargar su comprobante.</p>`,
+               <p>Click <a href="${verificationLink}">aqui</a> para verificar su cuenta y cargar su comprobante.</p>
+               <h1>Detalles del Pedido</h1>
+               <h2>Cliente</h2>
+               <p>Nombre : ${fullName}</p>
+               <p>Email: ${user}</p>
+               <h2>Productos</h2>
+               <ul>
+                 ${orderData.products
+                   .map(
+                     (product) => `
+                     <li>
+                       <p>Producto: ${product.producto.descripcion}</p>
+                       <p>Cantidad: ${product.cantidad}</p>
+                       <p>Precio unitario: ${product.producto.precio}</p>
+                       <p>Precio con descuento: ${product.producto.preciocondesc}</p>
+                     </li>
+                   `
+                   )
+                   .join('')}
+               </ul>
+               
+               <h2>Resumen del Pedido</h2>
+               <p>Total sin descuento: ${orderData.totalWithOutDiscount}</p>
+               <p>Total con descuento: ${orderData.totalWithDiscount}</p>
+               <p>Tipo de pago: ${orderData.payType}</p>
+               <p>Envío: ${orderData.shiping ? 'Sí' : 'No'}</p>
+               <p>Estado: ${orderData.status}</p>
+               <p>Número de cliente: ${orderData.tokenClient}</p>
+               <p>Factura A: ${orderData.isFacturaA ? 'Sí' : 'No'}</p>`,
       });
     } catch (error) {
       this.commonService.handleExceptions(error);
@@ -44,7 +72,7 @@ export class MailService {
   
       await this.mailerService.sendMail({
         to: user,
-        from: `"VAGIMPORTS" <${process.env.MAIL_FROM}>`, // override default from
+        from: `"REYES DEL OESTE" <${process.env.MAIL_FROM}>`, // override default from
         subject: 'Codigo de verificacion y link para cargar comprobante',
         html: `<p>Tu codigo de verificacion es: ${code}</p>
         <p>Click <a href="${verificationLink}">aqui</a> para verificar su cuenta y cargar su comprobante.</p>
@@ -74,7 +102,7 @@ export class MailService {
   
       await this.mailerService.sendMail({
         to: user,
-        from: `"VAGIMPORTS" <${process.env.MAIL_FROM}>`, // override default from
+        from: `"REYES DEL OESTE" <${process.env.MAIL_FROM}>`, // override default from
         subject: 'Codigo de verificacion y link para cargar comprobante',
         html: `<p>Tu codigo de verificacion es: ${code}</p>
         <p>Click <a href="${verificationLink}">aqui</a> para verificar su cuenta y cargar su comprobante.</p>

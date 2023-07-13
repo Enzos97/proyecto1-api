@@ -10,6 +10,8 @@ import { MercadopagoService } from 'src/mercadopago/mercadopago.service';
 import { ProductosModule } from 'src/producto/producto.module';
 import { MercadopagoModule } from 'src/mercadopago/mercadopago.module';
 import { MailModule } from 'src/mail/mail.module';
+import { DatabaseErrorHandlingModule } from 'src/database-error-handling/database-error-handling.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
@@ -17,7 +19,8 @@ import { MailModule } from 'src/mail/mail.module';
     ClienteModule,
     ProductosModule,
     MercadopagoModule,
-    MailModule
+    MailModule,
+    CommonModule
   ],
   controllers: [OrdenController],
   providers: [OrdenService]
