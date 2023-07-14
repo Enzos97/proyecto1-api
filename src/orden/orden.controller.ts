@@ -26,12 +26,12 @@ export class OrdenController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.ordenService.findOne(+id);
+    return this.ordenService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrdenDto: UpdateOrdenDto) {
-    return this.ordenService.update(+id, updateOrdenDto);
+    return this.ordenService.update(id, updateOrdenDto);
   }
 
   @Delete(':id')

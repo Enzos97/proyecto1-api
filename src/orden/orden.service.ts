@@ -1,4 +1,4 @@
-import { BadGatewayException, BadRequestException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, HttpException, HttpStatus, Inject, Injectable, InternalServerErrorException, NotFoundException, forwardRef } from '@nestjs/common';
 import { CreateOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,6 +14,8 @@ import { PaymentMethod } from 'src/cliente/types/TypePayment.type';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CommonService } from 'src/common/common.service';
 import moment from 'moment';
+import { StatusTypes } from './types/StatusTypes.type';
+import { Producto } from 'src/producto/entities/producto.entity';
 @Injectable()
 export class OrdenService {
   constructor(
@@ -21,6 +23,7 @@ export class OrdenService {
     private readonly ordenModel: Model<Orden>,
     private readonly clienteService:ClienteService,
     private readonly productsService:ProductosService,
+    @Inject(forwardRef(() => MercadopagoService))
     private readonly mercadopagoService:MercadopagoService,
     private readonly mailService:MailService,
     private readonly commonService:CommonService,
@@ -75,14 +78,24 @@ export class OrdenService {
       let newOrder = await this.ordenModel.create(createOrdenDto)
       console.log("newOrder",newOrder);
       if(newOrder.payType==PaymentMethod.MERCADOPAGO){
-        let linkMP = await this.mercadopagoService.create(newOrder.products)
-        let code = this.generateCode()
-        console.log('code',code, createOrdenDto)
-        newOrder.tokenClient=code
-        await newOrder.save()
-        await newOrder.populate('Customer')
-        await this.mailService.send_code_mail_for_order(customerEmail,newOrder.id,code,newOrder, customerFullName)
-        return {orden:newOrder, linkMP:linkMP }
+        const ordenMP= {
+          items : newOrder.products,
+          id: newOrder.id
+        }
+        console.log('ordenMP',ordenMP)
+        try {
+          let linkMP = await this.mercadopagoService.create(ordenMP)
+          console.log('linkMP',linkMP)
+          let code = this.generateCode()
+          console.log('code',code, createOrdenDto)
+          newOrder.tokenClient=code
+          await newOrder.save()
+          await newOrder.populate('Customer')
+          await this.mailService.send_code_mail_for_order(customerEmail,newOrder.id,code,newOrder, customerFullName)
+          return {orden:newOrder, linkMP:linkMP }
+        } catch (error) {
+          throw new BadRequestException(error)
+        }
       }
       if(newOrder.payType==PaymentMethod.TRANSFERENCIA){
         let code = this.generateCode()
@@ -190,13 +203,40 @@ export class OrdenService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} orden`;
+  async findOne(id: string) {
+    return await this.ordenModel.findById(id)
   }
 
-  update(id: number, updateOrdenDto: UpdateOrdenDto) {
-    return `This action updates a #${id} orden`;
+  async update(id: string, updateOrdenDto: UpdateOrdenDto) {
+    const { status } = updateOrdenDto;
+  
+    // Obtén la orden existente
+    const orden: Orden = await this.ordenModel.findById(id);
+  
+    // Verifica si el estado ha cambiado a "ACEPTADO"
+    if (status === StatusTypes.ACCEPTED && orden.status !== StatusTypes.ACCEPTED) {
+      // Recorre los productos de la orden y actualiza el stock
+      for (const product of orden.products) {
+        const producto: any = await this.productsService.findOne(product.producto._id);
+  
+        // Resta la cantidad del stock
+        producto.stock -= product.cantidad;
+  
+        // Guarda los cambios en el producto
+        await producto.save()
+      }
+    }
+  
+    // Actualiza el estado de la orden
+    orden.status = status;
+  
+    // Guarda los cambios en la orden
+    await this.ordenModel.findByIdAndUpdate(id,orden,{new:true})
+
+    return orden
+
   }
+  
 
   remove(id: number) {
     return `This action removes a #${id} orden`;

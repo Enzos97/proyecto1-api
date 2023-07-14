@@ -16,8 +16,9 @@ export class MercadopagoService {
   }
 
   async create(createMercadopagoDto: any) {
-    const items = createMercadopagoDto.map(({ producto, cantidad }) => {
+    const items = createMercadopagoDto.items.map(({ producto, cantidad }) => {
       const item: item = {
+        id:producto.id,
         title: producto.descripcion,
         quantity: cantidad,
         currency_id: "ARS", // Cambia esto si usas una moneda diferente
@@ -34,6 +35,10 @@ export class MercadopagoService {
         // pending: "https://e720-190-237-16-208.sa.ngrok.io/pending",
         failure: "https://proyecto1-front.vercel.app/checkout/failure",
       },
+      notification_url: "https://proyecto1-api-pcpucbtdtq-rj.a.run.app/pagos/webhook",
+      metadata:{
+        orderId:createMercadopagoDto.id,
+      }
     };
 
     try {
@@ -46,7 +51,15 @@ export class MercadopagoService {
       throw new BadRequestException(error.message);
     }
   }
-
+  async findPaymentById(paymentId: any) {
+    try {
+      console.log(paymentId)
+      const data = await mercadopago.payment.findById(paymentId);
+      return data;
+    } catch (error) {
+      throw new Error('Something went wrong');
+    }
+  }
   findAll() {
     return `This action returns all mercadopago`;
   }

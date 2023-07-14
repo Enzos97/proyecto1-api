@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { OrdenService } from './orden.service';
 import { OrdenController } from './orden.controller';
 import { Orden, OrdenSchema } from './entities/orden.entity';
@@ -18,11 +18,13 @@ import { CommonModule } from 'src/common/common.module';
     MongooseModule.forFeature([{ name: Orden.name, schema: OrdenSchema }]),
     ClienteModule,
     ProductosModule,
-    MercadopagoModule,
+    forwardRef(()=>MercadopagoModule),
+
     MailModule,
     CommonModule
   ],
   controllers: [OrdenController],
-  providers: [OrdenService]
+  providers: [OrdenService],
+  exports: [OrdenService]
 })
 export class OrdenModule {}

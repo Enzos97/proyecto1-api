@@ -9,7 +9,7 @@ import { StatusTypes } from '../types/StatusTypes.type';
 @Schema()
 export class Orden {
     @Prop({required:true})
-    products:ProductQuantity[]
+    products:any[]
     @Prop({ required:true, type: Types.ObjectId, ref: 'Cliente' })
     Customer:Types.ObjectId;
     @Prop({required:false})

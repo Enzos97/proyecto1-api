@@ -101,15 +101,50 @@ export class CuponService {
     return cupones
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cupon`;
+  async findOne(id: string) {
+    try {
+      const cupon = await this.cuponModel.findById(id)
+      return cupon
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
   }
 
-  update(id: number, updateCuponDto: UpdateCuponDto) {
-    return `This action updates a #${id} cupon`;
-  }
+  async update(id: string, updateCuponDto: UpdateCuponDto) {
+    try {
+      const { vencimientoEnDias } = updateCuponDto;
+  
+      // Obtén el cupón existente
+      let cupon: Cupon = await this.cuponModel.findById(id);
+  
+      if (!cupon) {
+        throw new BadRequestException('Cupón no encontrado');
+      }
+  
+      if(vencimientoEnDias){
+        // Calcula la nueva fecha de vencimiento
+        const fechaVencimiento = new Date();
+        fechaVencimiento.setDate(fechaVencimiento.getDate() + vencimientoEnDias);
+    
+        // Actualiza la fecha de vencimiento en el cupón
+        cupon.vencimiento = fechaVencimiento;
+        // Guarda los cambios en el cupón
+        await cupon.save();
+      }
+      cupon = await this.cuponModel.findByIdAndUpdate(id,updateCuponDto,{new:true}) 
 
-  remove(id: number) {
-    return `This action removes a #${id} cupon`;
+      return cupon;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  
+
+  async remove(id: string) {
+    try {
+      return await this.cuponModel.findByIdAndRemove(id)
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
   }
 }
