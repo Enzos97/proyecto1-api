@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { PaymentMethod } from "../types/TypePayment.type";
 
 @Schema()
@@ -77,5 +77,8 @@ export class Cliente extends Document {
     
     @Prop({required:true})
     paymentMethod:PaymentMethod
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Orden' }] })
+    myOrders: Types.ObjectId[];
 }
 export const ClienteSchema = SchemaFactory.createForClass(Cliente);

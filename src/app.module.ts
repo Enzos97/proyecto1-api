@@ -17,6 +17,7 @@ import { OrdenesModule } from './ordenes/ordenes.module';
 import { CuponModule } from './cupon/cupon.module';
 import { OrdenModule } from './orden/orden.module';
 import { ClienteModule } from './cliente/cliente.module';
+import { AdminModule } from './admin/admin.module';
 
 
 @Module({
@@ -37,6 +38,7 @@ import { ClienteModule } from './cliente/cliente.module';
     CuponModule,
     OrdenModule,
     ClienteModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

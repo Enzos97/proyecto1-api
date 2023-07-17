@@ -108,6 +108,7 @@ export class ProductosService {
     }
 
     // updateProduct.modelo = updateProductoDto.modelo || updateProduct.modelo;
+    updateProduct.stock = updateProductoDto.stock || updateProduct.stock
     updateProduct.codigo = updateProductoDto.codigo || updateProduct.codigo;
     updateProduct.descripcion = updateProductoDto.descripcion || updateProduct.descripcion;
     updateProduct.precio = updateProductoDto.precio || updateProduct.precio;
@@ -136,6 +137,7 @@ export class ProductosService {
       { new: true }
     );
   }
+
   async remove(id: string): Promise<Producto> {
     return this.productModel.findByIdAndRemove(id).exec();
   }

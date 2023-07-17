@@ -17,6 +17,18 @@ export class MercadopagoService {
 
   async create(createMercadopagoDto: any) {
     const items = createMercadopagoDto.items.map(({ producto, cantidad }) => {
+      if(createMercadopagoDto.discount!==0){
+        console.log('entreeeeeeeeeeeeeeeeeeeeeeee',createMercadopagoDto.discount)
+        const item: item = {
+          id:producto.id,
+          title: producto.descripcion,
+          quantity: cantidad,
+          currency_id: "ARS", // Cambia esto si usas una moneda diferente
+          unit_price: producto.descuento > 0 ? producto.precio - (producto.precio * producto.descuento) / 100 : producto.precio - (producto.precio * (createMercadopagoDto.discount/100))
+        };
+        console.log('iteeeeeeeeeeeeeeeeeeeem',item)
+        return item
+      }
       const item: item = {
         id:producto.id,
         title: producto.descripcion,
@@ -24,7 +36,6 @@ export class MercadopagoService {
         currency_id: "ARS", // Cambia esto si usas una moneda diferente
         unit_price: producto.descuento > 0 ? producto.precio - (producto.precio * producto.descuento) / 100 : producto.precio
       };
-    
       return item;
     });
     //console.log('items',items)

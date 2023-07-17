@@ -54,6 +54,14 @@ export class ClienteService {
     return `This action updates a #${id} customer`;
   }
 
+  async addOrden(ordenId:string,clientId:string){
+    return this.clienteModel.findByIdAndUpdate(
+      clientId,
+      { $push: { myOrders: ordenId } },
+      { new: true },
+    );
+  }
+
   async remove(id: string) {
     try {
       const customerRemoved = await this.clienteModel.findByIdAndRemove(id)

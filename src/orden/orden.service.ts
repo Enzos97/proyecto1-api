@@ -76,22 +76,25 @@ export class OrdenService {
     createOrdenDto.totalWithOutDiscount=totalWithoutDiscount
     try {
       let newOrder = await this.ordenModel.create(createOrdenDto)
-      console.log("newOrder",newOrder);
       if(newOrder.payType==PaymentMethod.MERCADOPAGO){
         const ordenMP= {
           items : newOrder.products,
-          id: newOrder.id
+          id: newOrder.id,
+          discount: newOrder.discount||0
         }
-        console.log('ordenMP',ordenMP)
         try {
-          let linkMP = await this.mercadopagoService.create(ordenMP)
-          console.log('linkMP',linkMP)
           let code = this.generateCode()
-          console.log('code',code, createOrdenDto)
+          
           newOrder.tokenClient=code
+          if(createOrdenDto.discount!==0){
+            await this.aplicarCuponDescuento(newOrder.id,createOrdenDto.discount,productsWithDetails)
+          }
           await newOrder.save()
           await newOrder.populate('Customer')
           await this.mailService.send_code_mail_for_order(customerEmail,newOrder.id,code,newOrder, customerFullName)
+          await this.clienteService.addOrden(newOrder.id,createOrdenDto.Customer.toString())
+          let linkMP = await this.mercadopagoService.create(ordenMP)
+          
           return {orden:newOrder, linkMP:linkMP }
         } catch (error) {
           throw new BadRequestException(error)
@@ -104,6 +107,7 @@ export class OrdenService {
         await newOrder.save()
         newOrder.populate('Customer')
         await this.mailService.send_code_mail_Transferencia(customerEmail,newOrder.id,code)
+        await this.clienteService.addOrden(newOrder.id,createOrdenDto.Customer.toString())
         return {orden:newOrder }
       }
       if(newOrder.payType==PaymentMethod.DEPOSITO){
@@ -113,6 +117,7 @@ export class OrdenService {
         await newOrder.save()
         newOrder.populate('Customer')
         await this.mailService.send_code_mail_Deposito(customerEmail,newOrder.id,code)
+        await this.clienteService.addOrden(newOrder.id,createOrdenDto.Customer.toString())
         return {orden:newOrder }
       }
       let code = this.generateCode()
@@ -203,6 +208,27 @@ export class OrdenService {
     }
   }
 
+  async aplicarCuponDescuento( ordenId:string, cupon: number, productos: ProductQuantity[] ) {
+    let totalDescuentos = 0;
+    let orden = await this.ordenModel.findById(ordenId)
+  // Aplicar el descuento solo a los productos sin descuento
+  for (const product of productos) {
+    if (product.producto.descuento === 0) {
+      // Aplicar el descuento al precio del producto
+      product.producto.preciocondesc = product.producto.precio * (1 - (cupon / 100));
+    }
+
+    // Calcular el total con descuento del producto y sumarlo a la variable totalDescuentos
+    totalDescuentos += product.producto.preciocondesc * product.cantidad;
+  }
+
+    // Calcular el nuevo totalWithDiscount sumando totalDescuentos a totalWithOutDiscount
+    orden.totalWithDiscount = totalDescuentos;
+    orden.products = productos;
+
+    return await this.ordenModel.findByIdAndUpdate(ordenId,orden,{new:true})
+  }
+
   async findOne(id: string) {
     return await this.ordenModel.findById(id)
   }
@@ -237,7 +263,6 @@ export class OrdenService {
 
   }
   
-
   remove(id: number) {
     return `This action removes a #${id} orden`;
   }

@@ -158,7 +158,15 @@ export class UserService {
       { $push: { misCompras: idPurchase} },
     );
   }
-  
+
+  async addOrden(ordenId:string){
+    return this.userModel.findByIdAndUpdate(
+      ordenId,
+      { $push: { myOrders: ordenId } },
+      { new: true },
+    );
+  }
+
   async obtenerUltimaOrdenDeCompra(userId: string) {
     const usuario:any = await this.userModel
       .findById(userId)
