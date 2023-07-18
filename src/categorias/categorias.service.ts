@@ -50,10 +50,10 @@ export class CategoriasService {
   // }
   async create(createCategoriaDto: CreateCategoriaDto) {
     console.log(createCategoriaDto)
-    // if(createCategoriaDto.imagen){
-    //   const uploadImages = await this.uploadImageService.uploadFile(createCategoriaDto.nombre,createCategoriaDto.imagen)
-    //   createCategoriaDto.imagen=uploadImages.imageUrl
-    // }
+    if(createCategoriaDto.imagen){
+      const uploadImages = await this.uploadImageService.uploadFile(createCategoriaDto.nombre,createCategoriaDto.imagen)
+      createCategoriaDto.imagen=uploadImages.imageUrl
+    }
     const newCategory = new this.categoryModel({nombre:createCategoriaDto.nombre,imagen:createCategoriaDto.imagen})
     await newCategory.save()
 

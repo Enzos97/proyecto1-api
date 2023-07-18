@@ -15,6 +15,8 @@ export class Orden {
     @Prop({required:false})
     totalWithOutDiscount: number;
     @Prop({required:false})
+    cupon:string;
+    @Prop({required:false})
     discount: number;
     @Prop({required:false})
     totalWithDiscount: number;

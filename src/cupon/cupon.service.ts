@@ -66,13 +66,17 @@ export class CuponService {
         return 'El cupón no existe.';
       }
   
-      const userIdObj = new Types.ObjectId(validarCuponDto.userId);
+      //const userIdObj = new Types.ObjectId(validarCuponDto.userId);
   
-      if (cupon.userId.includes(userIdObj)) {
+      // if (cupon.userId.includes(userIdObj)) {
+      //   // El usuario ya ha usado este cupón
+      //   return 'Ya has usado este cupón.';
+      // }
+  
+      if (cupon.userEmail.includes(validarCuponDto.userEmail)) {
         // El usuario ya ha usado este cupón
         return 'Ya has usado este cupón.';
       }
-  
       // cupon.cantidad -= 1;
       // cupon.userId.push(userIdObj);
   
@@ -84,12 +88,13 @@ export class CuponService {
     }
   }
 
+  
   async restarCupon(validarCuponDto: ValidarCuponDto){
     const cupon = await this.cuponModel.findOne({ nombre: validarCuponDto.nombre });
-    const userIdObj = new Types.ObjectId(validarCuponDto.userId);
+    //const userIdObj = new Types.ObjectId(validarCuponDto.userId);
 
     cupon.cantidad -= 1;
-    cupon.userId.push(userIdObj);
+    cupon.userEmail.push(validarCuponDto.userEmail);
   
     await cupon.save();
   

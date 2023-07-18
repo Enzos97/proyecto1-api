@@ -178,7 +178,7 @@ export class OrdenesService {
     await orden.save();
 
     if(updateOrdeneDto.nombreCupon){
-      const cuponValid = await this.cuponService.applyCupon({nombre:updateOrdeneDto.nombreCupon,userId:orden.usuario.toString()})
+      const cuponValid = await this.cuponService.applyCupon({nombre:updateOrdeneDto.nombreCupon,userEmail:orden.email})
       console.log('cuponValid',cuponValid,orden.usuario.toString());
       
       orden.cupon=+cuponValid

@@ -16,6 +16,7 @@ import { CommonService } from 'src/common/common.service';
 import moment from 'moment';
 import { StatusTypes } from './types/StatusTypes.type';
 import { Producto } from 'src/producto/entities/producto.entity';
+import { CuponService } from 'src/cupon/cupon.service';
 @Injectable()
 export class OrdenService {
   constructor(
@@ -26,6 +27,7 @@ export class OrdenService {
     @Inject(forwardRef(() => MercadopagoService))
     private readonly mercadopagoService:MercadopagoService,
     private readonly mailService:MailService,
+    private readonly cuponService:CuponService,
     private readonly commonService:CommonService,
   ) {}
   async create(createOrdenDto: CreateOrdenDto) {
@@ -95,7 +97,7 @@ export class OrdenService {
           await this.clienteService.addOrden(newOrder.id,createOrdenDto.Customer.toString())
           let linkMP = await this.mercadopagoService.create(ordenMP)
           
-          return {orden:newOrder, linkMP:linkMP }
+          return {orden:newOrder, linkMP:linkMP, cupon:await this.cuponService.applyCupon({nombre:createOrdenDto.cupon,userEmail:createOrdenDto.Customer.email}) }
         } catch (error) {
           throw new BadRequestException(error)
         }

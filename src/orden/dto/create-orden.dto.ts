@@ -16,6 +16,10 @@ export class CreateOrdenDto {
     @IsOptional()
     totalWithOutDiscount: number;
 
+    @IsOptional()
+    @IsString()
+    cupon:string;
+    
     @IsNumber()
     @IsOptional()
     discount: number;

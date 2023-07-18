@@ -40,7 +40,7 @@ export class ClienteService {
 
   async findAll() {
     try {
-      return await this.clienteModel.find()
+      return await this.clienteModel.find().populate('myOrders')
     } catch (error) {
       throw new BadRequestException(error)
     }

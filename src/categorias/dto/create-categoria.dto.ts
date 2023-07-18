@@ -10,10 +10,8 @@ export class CreateCategoriaDto {
     descripcion: string;
     
     @IsOptional()
-    @IsArray()
-    @IsString({ each: true })
-    @Type(() => String)
-    imagen: string[];
+    @IsString()
+    imagen: string
     
     @IsOptional()
     @IsArray()

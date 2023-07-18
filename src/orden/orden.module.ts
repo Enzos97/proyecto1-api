@@ -12,6 +12,7 @@ import { MercadopagoModule } from 'src/mercadopago/mercadopago.module';
 import { MailModule } from 'src/mail/mail.module';
 import { DatabaseErrorHandlingModule } from 'src/database-error-handling/database-error-handling.module';
 import { CommonModule } from 'src/common/common.module';
+import { CuponModule } from 'src/cupon/cupon.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { CommonModule } from 'src/common/common.module';
     ClienteModule,
     ProductosModule,
     forwardRef(()=>MercadopagoModule),
-
+    CuponModule,
     MailModule,
     CommonModule
   ],

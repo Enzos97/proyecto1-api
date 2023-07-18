@@ -23,10 +23,10 @@ export class SubcategoriasService {
   ){}
   async create(createSubcategoriaDto: CreateSubcategoriaDto) {
     
-    // if(createSubcategoriaDto.imagen){
-    //   const uploadImages = await this.uploadImageService.uploadFiles(createSubcategoriaDto.nombre,createSubcategoriaDto.imagen)
-    //   createSubcategoriaDto.imagen=uploadImages.imageUrls
-    // }
+    if(createSubcategoriaDto.imagen){
+      const uploadImages = await this.uploadImageService.uploadFile(createSubcategoriaDto.nombre,createSubcategoriaDto.imagen)
+      createSubcategoriaDto.imagen=uploadImages.imageUrl
+    }
     const newSubcategory = await this.subcategoryModel.create(createSubcategoriaDto)
     if(createSubcategoriaDto.categoria){
       await this.categoryModel.findByIdAndUpdate(

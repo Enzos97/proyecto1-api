@@ -102,7 +102,7 @@ export class UploadImageService {
 
   async deleteFile(deleteUploadImageDto: DeleteUploadImageDto) {
     const { id, idProduct, idCategory, idSubcategory } = deleteUploadImageDto;
-    console.log(id,idProduct)
+    console.log(id,idProduct,idCategory,idSubcategory)
     const projectId = 'elegant-expanse-388600'; // Reemplaza con el ID de tu proyecto en Google Cloud
     const bucketName = 'proyecto1-api'; // Reemplaza con el nombre del bucket en Google Cloud Storage
   

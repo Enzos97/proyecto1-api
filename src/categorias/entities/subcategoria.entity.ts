@@ -12,8 +12,8 @@ export class Subcategoria {
     @Prop({ type: Types.ObjectId, ref: 'Categoria' })
     categoria: Types.ObjectId;
 
-    @Prop({ type: [String], required: false })
-    imagen: string[];
+    @Prop({required: false })
+    imagen: string
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Producto' }] })
     productos: Types.ObjectId[];
