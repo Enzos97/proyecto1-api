@@ -4,6 +4,8 @@ import { UpdateMercadopagoDto } from './dto/update-mercadopago.dto';
 import { item } from './interfaces/item.interface';
 import mercadopago from 'mercadopago';
 
+
+
 @Injectable()
 export class MercadopagoService {
 
@@ -14,24 +16,40 @@ export class MercadopagoService {
   }
 
   async create(createMercadopagoDto: any) {
-    const items = createMercadopagoDto.map(({ producto, cantidad }) => {
+    const items = createMercadopagoDto.items.map(({ producto, cantidad }) => {
+      if(createMercadopagoDto.discount!==0){
+        console.log('entreeeeeeeeeeeeeeeeeeeeeeee',createMercadopagoDto.discount)
+        const item: item = {
+          id:producto.id,
+          title: producto.descripcion,
+          quantity: cantidad,
+          currency_id: "ARS", // Cambia esto si usas una moneda diferente
+          unit_price: producto.descuento > 0 ? producto.precio - (producto.precio * producto.descuento) / 100 : producto.precio - (producto.precio * (createMercadopagoDto.discount/100))
+        };
+        console.log('iteeeeeeeeeeeeeeeeeeeem',item)
+        return item
+      }
       const item: item = {
-        title: producto.modelo,
+        id:producto.id,
+        title: producto.descripcion,
         quantity: cantidad,
         currency_id: "ARS", // Cambia esto si usas una moneda diferente
         unit_price: producto.descuento > 0 ? producto.precio - (producto.precio * producto.descuento) / 100 : producto.precio
       };
-    
       return item;
     });
-    console.log('items',items)
+    //console.log('items',items)
     const preference: any = {
       items: items,
       back_urls: {
-        success: "http://localhost:3003/mercadopago/success",
+        success: "https://proyecto1-front.vercel.app/checkout/success",
         // pending: "https://e720-190-237-16-208.sa.ngrok.io/pending",
-        // failure: "https://e720-190-237-16-208.sa.ngrok.io/failure",
+        failure: "https://proyecto1-front.vercel.app/checkout/failure",
       },
+      notification_url: "https://proyecto1-api-pcpucbtdtq-rj.a.run.app/pagos/webhook",
+      metadata:{
+        orderId:createMercadopagoDto.id,
+      }
     };
 
     try {
@@ -44,7 +62,15 @@ export class MercadopagoService {
       throw new BadRequestException(error.message);
     }
   }
-
+  async findPaymentById(paymentId: any) {
+    try {
+      console.log(paymentId)
+      const data = await mercadopago.payment.findById(paymentId);
+      return data;
+    } catch (error) {
+      throw new Error('Something went wrong');
+    }
+  }
   findAll() {
     return `This action returns all mercadopago`;
   }

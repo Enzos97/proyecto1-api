@@ -70,62 +70,56 @@ export class UploadImageService {
     
      
   // }
-  async uploadFiles(name: string, images: string[]) {
+  async uploadFile(name: string, image: string) {
     const projectId = 'elegant-expanse-388600'; // Reemplaza con el ID de tu proyecto en Google Cloud
     const bucketName = 'proyecto1-api'; // Reemplaza con el nombre del bucket en Google Cloud Storage
-
-    const storage = new Storage({ projectId });
-    const bucket = storage.bucket(bucketName);
-
-    const imageUrls: string[] = [];
-    
-    let v =0
-    for (const base64Data of images) {
-      // Decodifica el contenido base64 de la imagen
-      const imageData = base64Data.replace(/^data:image\/\w+;base64,/, '');
-      const imageBuffer = Buffer.from(imageData, 'base64');
-
-      
-      const fileName = `${Date.now()}_${name}_v${v}`;
-      v++
-      // Crea un archivo en el bucket de Google Cloud Storage
-      const file = bucket.file(fileName);
-
-      // Sube el contenido de la imagen al archivo
-      await file.save(imageBuffer, {
-        metadata: {
-          contentType: 'image/jpeg', // Reemplaza con el tipo de contenido adecuado para tus imágenes
-        },
-      });
-
-      const imageUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
-      imageUrls.push(imageUrl);
-    }
-
-    // Realiza cualquier otra operación necesaria con las URLs de las imágenes
-
-    return { imageUrls };
-  }
-
-  async deleteFile(deleteUploadImageDto: DeleteUploadImageDto) {
-    const {id, idProduct, idCategory, idSubcategory} = deleteUploadImageDto
-
-    const projectId = 'elegant-expanse-388600'; // Reemplaza con el ID de tu proyecto en Google Cloud
-    const bucketName = 'proyecto1-api';// Reemplaza con el nombre del bucket en Google Cloud Storage
   
     const storage = new Storage({ projectId });
     const bucket = storage.bucket(bucketName);
-    let productById
-    let catOrSub
-    if(idProduct){
-      productById = await this.productoService.findOne(idProduct)
+  
+    // Decodifica el contenido base64 de la imagen
+    const imageData = image.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Buffer.from(imageData, 'base64');
+  
+    const fileName = `${Date.now()}_${name}`;
+    
+    // Crea un archivo en el bucket de Google Cloud Storage
+    const file = bucket.file(fileName);
+  
+    // Sube el contenido de la imagen al archivo
+    await file.save(imageBuffer, {
+      metadata: {
+        contentType: 'image/jpeg', // Reemplaza con el tipo de contenido adecuado para tus imágenes
+      },
+    });
+  
+    const imageUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+  
+    // Realiza cualquier otra operación necesaria con la URL de la imagen
+  
+    return { imageUrl };
+  }
+
+  async deleteFile(deleteUploadImageDto: DeleteUploadImageDto) {
+    const { id, idProduct, idCategory, idSubcategory } = deleteUploadImageDto;
+    console.log(id,idProduct,idCategory,idSubcategory)
+    const projectId = 'elegant-expanse-388600'; // Reemplaza con el ID de tu proyecto en Google Cloud
+    const bucketName = 'proyecto1-api'; // Reemplaza con el nombre del bucket en Google Cloud Storage
+  
+    const storage = new Storage({ projectId });
+    const bucket = storage.bucket(bucketName);
+    let productById;
+    let catOrSub;
+    if (idProduct) {
+      productById = await this.productoService.findOne(idProduct);
     }
-    if(idCategory){
-      catOrSub = await this.categoriaService.findOne(idCategory)
+    if (idCategory) {
+      catOrSub = await this.categoriaService.findOne(idCategory);
     }
-    if(idSubcategory){
-      catOrSub = await this.subcategoriaService.findOne(idSubcategory)
+    if (idSubcategory) {
+      catOrSub = await this.subcategoriaService.findOne(idSubcategory);
     }
+  
     // Extrae el nombre del archivo de la URL
     const fileName = id.substring(id.lastIndexOf('/') + 1);
   
@@ -133,32 +127,31 @@ export class UploadImageService {
     const file = bucket.file(fileName);
   
     try {
-    // Elimina el archivo del bucket
-    await file.delete();
+      // Elimina el archivo del bucket
+      await file.delete();
   
-    // Eliminar la URL de la imagen del array 'images'
-    if(productById){
-      const index = productById.imagenes.findIndex(image => image === id);
-      if (index > -1) {
-        productById.imagenes.splice(index, 1);
-        await productById.save();
+      // Eliminar la URL de la imagen del array 'imagenes'
+      if (productById) {
+        if (productById.imagenes === id) {
+          productById.imagenes = '';
+          await productById.save();
+        }
+        return { success: true, productById };
       }
-      return { success: true, productById };
-    }
-    if(catOrSub){
-      const index = catOrSub.imagen.findIndex(image => image === id);
-      if (index > -1) {
-        catOrSub.imagen.splice(index, 1);
-        await catOrSub.save();
+      if (catOrSub) {
+        if (catOrSub.imagen === id) {
+          catOrSub.imagen = '';
+          await catOrSub.save();
+        }
+        return { success: true, catOrSub };
       }
-      return { success: true, catOrSub };
-    }
     } catch (error) {
       // Maneja el error en caso de que ocurra alguna falla en la eliminación del archivo
       console.error(`Error al eliminar el archivo ${fileName}: ${error}`);
       return { success: false, error };
     }
   }
+  
   // async deleteFile(id: string,idProduct:string) {
   //   const projectId = 'vagimports-backend'; // Reemplaza con el ID de tu proyecto en Google Cloud
   //   const bucketName = 'vagimport-images'; // Reemplaza con el nombre del bucket en Google Cloud Storage

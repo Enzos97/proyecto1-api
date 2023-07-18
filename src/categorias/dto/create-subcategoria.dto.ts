@@ -15,10 +15,8 @@ export class CreateSubcategoriaDto {
 
         
     @IsOptional()
-    @IsArray()
-    @IsString({ each: true })
-    @Type(() => String)
-    imagen: string[];
+    @IsString()
+    imagen: string
     
     @IsOptional()
     @IsArray()

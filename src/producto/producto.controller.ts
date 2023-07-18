@@ -17,37 +17,6 @@ export class ProductosController {
     private readonly imageUploadService: ImageUploadService
     ) {}
 
-  // @Post()
-  // create(@Body() createProductoDto:CreateProductoDto): Promise<Producto> {
-  //   return this.productsService.create(createProductoDto);
-  // }
-  //@Auth(Role.ADMIN)
-  // @Post()
-  // @UseInterceptors(FilesInterceptor('files'))
-  // async create(
-  //   @Body() createProductoDto: any,
-  //   @UploadedFiles() files: Array<Express.Multer.File>,
-  // ): Promise<Producto> {
-  //   console.log('files', files);
-  //   const parsedProductDto: CreateProductoDto = JSON.parse(
-  //     createProductoDto.data,
-  //   );
-  //   if (files) {
-  //     const imagesUrl = await this.imageUploadService.uploadImages(files);
-  //     parsedProductDto.imagenes = imagesUrl;
-  //   }
-
-  //   try {
-  //     console.log('parsedproduct', parsedProductDto);
-
-  //     const createdProduct = await this.productsService.create(
-  //       parsedProductDto,
-  //     );
-  //     return createdProduct;
-  //   } catch (error) {
-  //     this.commonService.handleExceptions(error);
-  //   }
-  // }
   @Post()
   async create(@Body() createProductoDto: CreateProductoDto): Promise<Producto> {
       return await this.productsService.create(createProductoDto);

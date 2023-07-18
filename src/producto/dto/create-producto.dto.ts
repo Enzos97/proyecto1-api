@@ -4,45 +4,52 @@ import { TallesDto } from "./talle-product.dto";
 import { Talle } from "../interfaces/talles.interface";
 
 export class CreateProductoDto {
-  @IsString()
-  tipo: string;
+  // @IsString()
+  // tipo: string;
 
-  @IsString()
-  marca: string;
+  // @IsString()
+  // marca: string;
 
-  @IsString()
-  modelo: string;
+  // @IsString()
+  // modelo: string;
+
   @IsString()
   descripcion:string;
-  @IsArray()
-  @IsString({ each: true })
-  @Type(() => String)
-  colores: string[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => TallesDto)
-  talle: Talle[];
+  // @IsArray()
+  // @IsString({ each: true })
+  // @Type(() => String)
+  // colores: string[];
 
-  @IsArray()
-  @IsString({ each: true })
-  @Type(() => String)
-  imagenes: string[];
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => TallesDto)
+  // talle: Talle[];
+
+  @IsOptional()
+  @IsString()
+  imagenes: string;
 
   @IsNumber()
   precio: number;
 
   @IsString()
   codigo: string;
+  
+  @IsOptional()
+  @IsNumber()
+  qxbulto:number
 
-  @IsString()
-  genero: string;
+  @IsNumber()
+  stock:number
+  // @IsString()
+  // genero: string;
 
-  @IsString()
-  proveedor: string;
+  // @IsString()
+  // proveedor: string;
 
-  @IsString()
-  disciplina: string;
+  // @IsString()
+  // disciplina: string;
 
   @IsOptional()
   @IsBoolean()

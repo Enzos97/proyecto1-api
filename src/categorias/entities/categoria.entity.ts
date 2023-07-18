@@ -9,8 +9,8 @@ export class Categoria extends Document {
   @Prop({ required: false })
   descripcion: string;
   
-  @Prop({ type: [String], required: false })
-  imagen: string[]
+  @Prop({required: false })
+  imagen: string
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Subcategoria' }] })
   subcategorias: Types.ObjectId[];

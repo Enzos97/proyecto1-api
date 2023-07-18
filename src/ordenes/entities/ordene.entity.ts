@@ -12,6 +12,8 @@ export class Ordene extends Document {
     usuario:Types.ObjectId;
     @Prop({required:false})
     totalSinDescuento: number;
+    @Prop({required:false,default:null})
+    nombreCupon:string;
     @Prop({required:false, default:0})
     cupon: number;
     @Prop({required:false})
@@ -25,4 +27,4 @@ export class Ordene extends Document {
     @Prop({required:false,default:CompraEstado.PENDIENTE})
     estadoDeCompra: CompraEstado;
 }
-export const OrdenSchema = SchemaFactory.createForClass(Ordene);
+export const OrdenesSchema = SchemaFactory.createForClass(Ordene);
